@@ -172,7 +172,7 @@ int main(void)
     };
 
     /*
-    Vertex Array Object (VAO)
+    First Commit - Vertex Array Object (VAO)
 
     In the current state (before VAO) what we are doing is :
         Bind our shader
