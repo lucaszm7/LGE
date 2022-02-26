@@ -1,5 +1,6 @@
 #pragma once
 
+// Index Buffer Object
 class IndexBuffer
 {
 private:

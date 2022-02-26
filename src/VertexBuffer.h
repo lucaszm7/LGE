@@ -1,5 +1,6 @@
 #pragma once
 
+// Create a vertex buffer in the GPU MEM, pass the data in and Binded
 class VertexBuffer
 {
 private:

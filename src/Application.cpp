@@ -9,6 +9,7 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -165,48 +166,12 @@ int main(void)
             2, 3, 0,
         };
 
-        /*
-        Vertex Array Object (VAO)
-
-        In the current state (before VAO) what we are doing is :
-            Bind our shader
-            Bind our vertex Buffer
-            Set up the vertex layout
-            Bind our index buffer
-            And then, call the DrawCall
-
-        Now with Vertex Array Object (VAO):
-            Bind our shader
-            Bind our Vertex Array
-            And then, call the DrawCall
-
-        Vertex Array Objects are mandatory, what are happening is that
-        OpenGL is creating one for us right now, because of the compatibility.
-        But if we change the OpenGL profile from COMPATIBILITE to CORE, it's not
-        gonna create one for us.
-         */
-        unsigned int VAO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        // Create a vertex buffer in the GPU MEM, pass the data in and binded
+        VertexArray VAO;
         VertexBuffer vbuffer(positions, 2 * 4 * sizeof(float));
-
-        // We need to enable our vertexAttribArray
-        glEnableVertexAttribArray(0);
-        // The Vertex Attrib Pointer is what links this buffer to the current VAO!!!
-        // 
-        // Witch attribute we want?
-        // How many types build this attribute? Ex: 2 floats build a 2D position
-        // Witch type are this attribute? Ex: float, int, ...
-        // Are normalize? Ex: RGB(255, 0, 0) needs to pass to [0, 1]
-        // Is the size of the vertex, as the vertex has many attributes, we need to call vertex[2], so we need to know
-        //      the size of witch vertex. We can say that is the amount of bytes between each vertex
-        // Inside this Vertex, what is the offset for this attribute? Ex: if a vertex has (position, color, textCoord)
-        //                                                                then the offset for 0, 12, 20;
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-
-        // Index Buffer Object
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        VAO.AddBuffer(vbuffer, layout);
+        
         IndexBuffer ibo(indices, 6);
 
         // In debug mode the relative path is the project folder!!!
@@ -226,12 +191,12 @@ int main(void)
         int UniformColorLocation = glGetUniformLocation(shader, "u_Color");
         if (UniformColorLocation == -1) ASSERT();
 
-        glBindVertexArray(0);
+
+        // Unbind everthing
+        VAO.Unbind();
         glUseProgram(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
 
 
         double r = 0.0f, g = 0.0f;
@@ -245,7 +210,7 @@ int main(void)
             glUseProgram(shader);
             glUniform4f(UniformColorLocation, r, g, 1.0f, 1.0f);
 
-            glBindVertexArray(VAO);
+            VAO.Bind();
 
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
