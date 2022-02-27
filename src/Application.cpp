@@ -10,6 +10,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+#include "Shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -27,94 +28,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 }
 
-struct ShaderProgramSource
-{
-    std::string VertexSource;
-    std::string FragmentSource;
-};
 
-static ShaderProgramSource ParseShader(const std::string& filePath)
-{
-    std::ifstream stream(filePath);
-
-    if (!stream)
-    {
-        std::cout << "Wrong shader Path!" << std::endl;
-        exit;
-    }
-
-    std::stringstream ss[2];
-
-    enum class ShaderType
-    {
-        NONE = -1, VERTEX = 0, FRAGMENT = 1
-    };
-
-    ShaderType type = ShaderType::NONE;
-
-    std::string line;
-    while (getline(stream, line))
-    {
-        if (line.find("#shader") != std::string::npos)
-        {
-            if (line.find("vertex") != std::string::npos)
-                type = ShaderType::VERTEX;
-
-            else if (line.find("fragment") != std::string::npos)
-                type = ShaderType::FRAGMENT;
-        }
-        else
-        {
-            ss[(int)type] << line << '\n';
-        }
-    }
-    return { ss[0].str(), ss[1].str() };
-}
-
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-
-    if (result == GL_FALSE)
-    {
-        int lenght;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght);
-        char* message = (char*)_malloca(lenght * sizeof(char));
-        glGetShaderInfoLog(id, lenght, &lenght, message);
-        std::cout << "Failed to compile " << 
-            (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << 
-            " shader!" << std::endl;
-        std::cout << message << std::endl;
-        glDeleteShader(id);
-        return 0;
-    }
-
-    return id;
-}
-
-
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
 
 int main(void)
 {
@@ -150,83 +64,66 @@ int main(void)
 
     std::cout << "\033[1;32m" << glGetString(GL_VERSION) << "\033[0m" << std::endl;
     
+    float positions[] =
     {
-        float positions[] =
-        {
-            -0.5f, -0.5f, // This is a vertex
-             0.5f, -0.5f, // Another vertex
-             0.5f,  0.5f, // yet another vertex
+        -0.5f, -0.5f, // This is a vertex
+         0.5f, -0.5f, // Another vertex
+         0.5f,  0.5f, // yet another vertex
+        -0.5f,  0.5f,
+    };
 
-            -0.5f,  0.5f,
-        };
+    unsigned int indices[] =
+    {
+        0, 1, 2,
+        2, 3, 0,
+    };
 
-        unsigned int indices[] =
-        {
-            0, 1, 2,
-            2, 3, 0,
-        };
 
-        VertexArray VAO;
-        VertexBuffer vbuffer(positions, 2 * 4 * sizeof(float));
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-        VAO.AddBuffer(vbuffer, layout);
+    VertexBuffer vertexbuffer(positions, 2 * 4 * sizeof(float));
+
+    VertexBufferLayout layout;
+    layout.Push<float>(2);
+
+    VertexArray VAO;
+    VAO.AddBuffer(vertexbuffer, layout);
         
-        IndexBuffer ibo(indices, 6);
+    IndexBuffer indexbuffer(indices, 6);
 
-        // In debug mode the relative path is the project folder!!!
-        ShaderProgramSource shaderSource = ParseShader("res/shaders/Basic.shader");
+    // In debug mode the relative path is the project folder!!!
+    Shader shader("res/shaders/Basic.shader");
+    shader.Bind();
+        
+    // Unbind everthing
+    VAO.Unbind();
+    vertexbuffer.Unbind();
+    indexbuffer.Unbind();
+    shader.Unbind();
 
-        unsigned int shader = CreateShader(shaderSource.VertexSource, shaderSource.FragmentSource);
-        glUseProgram(shader);
+    double r = 0.0f, g = 0.0f;
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
 
-        /*
-        * Parâmetros de glUniform:
-        * Localização do Uniform: Só podemos chamar glUniform depois de termos nosso
-        * shader Program, pois quando ele eh compilado, OpenGL reserva uma posição na
-        * MEM para aquele Uniform, e precisamos saber qual eh essa localização, então
-        * precisamos de um PONTEIRO para aquele objeto, e podemos perguntar ao OpenGL
-        * qual a localização desse Uniform pelo nome.
-        */
-        int UniformColorLocation = glGetUniformLocation(shader, "u_Color");
-        if (UniformColorLocation == -1) ASSERT();
+        /* Render here */
+        glClear(GL_COLOR_BUFFER_BIT);
 
+        shader.Bind();
+        shader.SetUniform4f("u_Color", r, g, 1.0f, 1.0f);
+        VAO.Bind();
 
-        // Unbind everthing
-        VAO.Unbind();
-        glUseProgram(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
+        glfwGetCursorPos(window, &r, &g);
+        r /= 640;
+        g /= 480;
 
-        double r = 0.0f, g = 0.0f;
-        /* Loop until the user closes the window */
-        while (!glfwWindowShouldClose(window))
-        {
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
 
-            /* Render here */
-            glClear(GL_COLOR_BUFFER_BIT);
+        glfwSetKeyCallback(window, key_callback);
 
-            glUseProgram(shader);
-            glUniform4f(UniformColorLocation, r, g, 1.0f, 1.0f);
-
-            VAO.Bind();
-
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-            glfwGetCursorPos(window, &r, &g);
-            r /= 640;
-            g /= 480;
-
-            /* Swap front and back buffers */
-            glfwSwapBuffers(window);
-
-            glfwSetKeyCallback(window, key_callback);
-
-            /* Poll for and process events */
-            glfwPollEvents();
-        }
-        glDeleteProgram(shader);
+        /* Poll for and process events */
+        glfwPollEvents();
     }
 
     glfwTerminate();
