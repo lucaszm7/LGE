@@ -7,10 +7,23 @@
 #include <sstream>
 
 #include "Renderer.h"
+
 #include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Texture.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+#define SCREEN_WIDTH 960.0f
+#define SCREEN_HEIGHT 540.0f
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -23,12 +36,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         if (!monitor)
             glfwSetWindowMonitor(window, fullScreenMonitor, 0, 0, fullScreenMode->width, fullScreenMode->height, fullScreenMode->refreshRate);
         else
-            glfwSetWindowMonitor(window, NULL, 200, 200, 640, 480, fullScreenMode->refreshRate);
+            glfwSetWindowMonitor(window, NULL, 200, 200, SCREEN_WIDTH, SCREEN_HEIGHT, fullScreenMode->refreshRate);
     }
 
 }
-
-
 
 int main(void)
 {
@@ -43,18 +54,13 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "SandBox Application", NULL, NULL);
+    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SandBox Application", NULL, NULL);
     if (!window)
-    {
-        glfwTerminate();
         return -1;
-    }
-
-
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-
     glfwSwapInterval(1);
+
 
     if (glewInit() != GLEW_OK)
         std::cout << "Error!" << std::endl;
@@ -66,10 +72,12 @@ int main(void)
     
     float positions[] =
     {
-        -0.5f, -0.5f, // This is a vertex
-         0.5f, -0.5f, // Another vertex
-         0.5f,  0.5f, // yet another vertex
-        -0.5f,  0.5f,
+        // Vertex attrib
+        //   POS     //   UV
+        -50.0f, -50.0f, 0.0f, 0.0f, // 0 // This is a vertex
+        50.0f, -50.0f, 1.0f, 0.0f, // 1 // Another vertex
+        50.0f, 50.0f, 1.0f, 1.0f, // 2 // yet another vertex
+        -50.0f, 50.0f, 0.0f, 1.0f, // 3 // and another vertex
     };
 
     unsigned int indices[] =
@@ -78,54 +86,125 @@ int main(void)
         2, 3, 0,
     };
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    VertexBuffer vertexbuffer(positions, 2 * 4 * sizeof(float));
+    VertexArray VAO;
+                           // nº of vertex * size of each vertex
+    VertexBuffer vertexbuffer(positions, 4 * 4 * sizeof(float));
 
     VertexBufferLayout layout;
     layout.Push<float>(2);
-
-    VertexArray VAO;
+    layout.Push<float>(2);
     VAO.AddBuffer(vertexbuffer, layout);
-        
+
     IndexBuffer indexbuffer(indices, 6);
+
+    // Transform to pixel space
+    glm::mat4 projOrtho = glm::ortho(0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -1.0f, 1.0f);
+
+    // Camera Transform
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+
 
     // In debug mode the relative path is the project folder!!!
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
-        
+
+
+    Texture texture("res/textures/goblin-12.png");
+    texture.Bind();
+    // We need to tell our shader, witch texture slot to sample from
+    shader.SetUniform1i("u_Texture", 0);
+
     // Unbind everthing
     VAO.Unbind();
     vertexbuffer.Unbind();
     indexbuffer.Unbind();
     shader.Unbind();
 
-    double r = 0.0f, g = 0.0f;
+    Renderer renderer;
+
+
+    // Setup Dear ImGui context
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontDefault();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+
+    ImVec4 obj_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    glm::vec3 translation1(200.0f, 200.0f, 0.0f);
+    glm::vec3 translation2(200.0f, 200.0f, 0.0f);
+
+    glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
 
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         shader.Bind();
-        shader.SetUniform4f("u_Color", r, g, 1.0f, 1.0f);
-        VAO.Bind();
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        {
+            // Object Transform = Translation, Rotation, Scale3
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation1);
+            glm::mat4 mvp = projOrtho * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            shader.SetUniform4f("u_Color", obj_color.x * obj_color.w, obj_color.y * obj_color.w, obj_color.z * obj_color.w, obj_color.w);
+            renderer.Draw(VAO, indexbuffer, shader);
+        }
 
-        glfwGetCursorPos(window, &r, &g);
-        r /= 640;
-        g /= 480;
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation2);
+            glm::mat4 mvp = projOrtho * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            shader.SetUniform4f("u_Color", obj_color.x * obj_color.w, obj_color.y * obj_color.w, obj_color.z * obj_color.w, obj_color.w);
+            renderer.Draw(VAO, indexbuffer, shader);
+        }
 
+        {
+            ImGui::Begin("Tranformations");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::SliderFloat3("Translation - 1", &translation1.x, 0.0f, (float)SCREEN_WIDTH);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat3("Translation - 2", &translation2.x, 0.0f, (float)SCREEN_WIDTH);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::NewLine();
+            ImGui::ColorEdit3("Obj color", (float*)&obj_color); // Edit 3 floats representing a color
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+            ImGui::End();
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
-
         glfwSetKeyCallback(window, key_callback);
-
         /* Poll for and process events */
         glfwPollEvents();
     }
 
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
     glfwTerminate();
+    
     return 0;
 }
