@@ -10,12 +10,33 @@ DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
     ASSERT(true);
 }
 
-void Renderer::Clear() const
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_E && action == GLFW_RELEASE)
+    {
+        // Pick the main monitor
+        GLFWmonitor* fullScreenMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* fullScreenMode = glfwGetVideoMode(fullScreenMonitor);
+        GLFWmonitor* monitor = glfwGetWindowMonitor(window);
+        if (!monitor)
+            glfwSetWindowMonitor(window, fullScreenMonitor, 0, 0, fullScreenMode->width, fullScreenMode->height, fullScreenMode->refreshRate);
+        else
+            glfwSetWindowMonitor(window, NULL, 200, 200, SCREEN_WIDTH, SCREEN_HEIGHT, fullScreenMode->refreshRate);
+    }
+
+    if (key == GLFW_KEY_EQUAL && action == GLFW_RELEASE)
+    {
+        std::cout << "Equals Pressed!\n";
+    }
+
+}
+
+void Renderer::Clear()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-const void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader) const
+void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader)
 {
     shader.Bind();
     vao.Bind();
@@ -28,7 +49,7 @@ const void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const S
     Setup ImGui Stuff
     Including: Docking, Font size, DarkMode, OpenGL, GLFW
 */
-void Renderer::SetupImGui(GLFWwindow* window) const
+void Renderer::SetupImGui(GLFWwindow* window)
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -48,4 +69,16 @@ void Renderer::SetupImGui(GLFWwindow* window) const
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+}
+
+void Renderer::SetupGLEW()
+{
+    /* Setup OpenGL */
+    if (glewInit() != GLEW_OK)
+        std::cout << "Error!" << std::endl;
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(DebugCallBack, 0);
+    std::cout << "\033[1;32m" << glGetString(GL_VERSION) << "\033[0m" << std::endl;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

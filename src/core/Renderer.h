@@ -20,13 +20,17 @@ void GLAPIENTRY
 DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
     GLsizei length, const char* message, const void* userParam);
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 
 class Renderer
 {
 public:
-    void Clear() const;
-    const void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader) const;
-    void SetupImGui(GLFWwindow* window) const;
+    static void Clear();
+    static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);
+    static void SetupImGui(GLFWwindow* window);
+    static void SetupGLEW();
+
 private:
 
 };
