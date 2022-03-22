@@ -66,10 +66,13 @@
     <ClCompile Include="src\tests\TestClearColor.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
-    <ClCompile Include="src\tests\TestPoligons.cpp">
+    <ClCompile Include="src\Application.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
-    <ClCompile Include="src\Application.cpp">
+    <ClCompile Include="src\tests\TestDemo.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tests\Test.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1385,7 +1388,7 @@
     <ClInclude Include="src\tests\TestClearColor.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
-    <ClInclude Include="src\tests\TestPoligons.h">
+    <ClInclude Include="src\tests\TestDemo.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
   </ItemGroup>
