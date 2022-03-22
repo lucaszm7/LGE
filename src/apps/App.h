@@ -7,35 +7,35 @@
 
 #include "imgui/imgui.h"
 
-namespace test
+namespace App
 {
-	class Test
+	class AppBase
 	{
 	public:
-		Test() {}
-		virtual ~Test() {}
+		AppBase() {}
+		virtual ~AppBase() {}
 
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
 	};
 
-	class TestMenu : public Test
+	class AppMenu : public AppBase
 	{
 	public:
-		TestMenu(Test*& currentTestPointer);
+		AppMenu(AppBase*& currentTestPointer);
 		void OnImGuiRender() override;
 
 		template <typename T>
-		void RegisterTest(const std::string& name)
+		void RegisterApp(const std::string& name)
 		{
 			std::cout << "Registering Test: " << name << "\n";
 			m_Tests.push_back(std::make_pair(name, []() { return new T(); }));
 		}
 
 	private:
-		Test*& m_CurrentTest;
-		std::vector< std::pair< std::string, std::function<Test* ()>>> m_Tests;
+		AppBase*& m_CurrentTest;
+		std::vector< std::pair< std::string, std::function<AppBase* ()>>> m_Tests;
 
 	};
 

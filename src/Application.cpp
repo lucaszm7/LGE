@@ -6,9 +6,9 @@
 
 #include "GLCore.h"
 
-#include "tests/Test.h"
-#include "tests/TestDemo.h"
-#include "tests/TestClearColor.h"
+#include "App.h"
+#include "TestDemo.h"
+#include "TestClearColor.h"
 
 
 
@@ -30,17 +30,16 @@ int main(void)
     Renderer::SetupImGui(window);
 
 
-    test::Test* currentTest = nullptr;
-    test::TestMenu* testMenu = new test::TestMenu(currentTest);
-    currentTest = testMenu;
+    App::AppBase* currentApp = nullptr;
+    App::AppMenu* mainMenu = new App::AppMenu(currentApp);
+    currentApp = mainMenu;
 
-    testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-    testMenu->RegisterTest<test::TestDemo>("Base Demo");
+    mainMenu->RegisterApp<App::TestClearColor>("Clear Color");
+    mainMenu->RegisterApp<App::TestDemo>("Base Demo");
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
         Renderer::Clear();
 
         // Start the Dear ImGui frame
@@ -49,17 +48,18 @@ int main(void)
         ImGui::NewFrame();
 
         /* Render here */
-        if (currentTest)
+        if (currentApp)
         {
-            ImGui::Begin("Test Menu");
-            if (currentTest != testMenu && ImGui::Button("<- Main Menu"))
+            ImGui::Begin("App Menu");
+            if (currentApp != mainMenu && ImGui::Button("<- Main Menu"))
             {
-                delete currentTest;
-                currentTest = testMenu;
+                delete currentApp;
+                currentApp = mainMenu;
+                glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
             }
-            currentTest->OnUpdate(0.0f);
-            currentTest->OnRender();
-            currentTest->OnImGuiRender();
+            currentApp->OnUpdate(0.0f);
+            currentApp->OnRender();
+            currentApp->OnImGuiRender();
             ImGui::End();
         }
 
@@ -75,9 +75,9 @@ int main(void)
         glfwPollEvents();
     }
 
-    if (currentTest != testMenu)
-        delete testMenu;
-    delete currentTest;
+    if (currentApp != mainMenu)
+        delete mainMenu;
+    delete currentApp;
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();

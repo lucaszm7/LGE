@@ -1,13 +1,13 @@
-#include "Test.h"
+#include "App.h"
 
-namespace test
+namespace App
 {
-	TestMenu::TestMenu(Test*& currentTestPointer)
+	AppMenu::AppMenu(AppBase*& currentTestPointer)
 		:m_CurrentTest(currentTestPointer)
 	{
 	}
 
-	void TestMenu::OnImGuiRender()
+	void AppMenu::OnImGuiRender()
 	{
 		for (auto& test : m_Tests)
 		{

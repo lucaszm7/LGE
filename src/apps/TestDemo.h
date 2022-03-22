@@ -1,21 +1,12 @@
 #pragma once
 
-#include "Test.h"
+#include "App.h"
 
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "GLCore.h"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "imgui/imgui.h"
-
-namespace test
+namespace App
 {
-	class TestDemo : public Test
+	class TestDemo : public AppBase
 	{
 	public:
 		TestDemo();
