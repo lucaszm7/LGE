@@ -14,7 +14,6 @@ namespace test
 		void OnImGuiRender() override;
 
 	private:
-		const std::string m_AppName;
 		float m_ClearColor[4];
 	};
 }

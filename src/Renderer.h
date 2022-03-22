@@ -4,6 +4,9 @@
 
 #define ASSERT() __debugbreak();
 
+#define SCREEN_WIDTH 960.0f
+#define SCREEN_HEIGHT 540.0f
+
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
