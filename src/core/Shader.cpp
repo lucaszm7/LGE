@@ -26,7 +26,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
     if (!stream)
     {
         std::cout << "Wrong shader Path!" << std::endl;
-        exit;
+        exit(-1);
     }
 
     std::stringstream ss[2];

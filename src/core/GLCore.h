@@ -2,8 +2,8 @@
 
 #include "Renderer.h"
 
-#include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
+#include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"

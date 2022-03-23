@@ -7,7 +7,7 @@ DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
     GLsizei length, const char* message, const void* userParam)
 {
     std::cout << "\n\033[1;31m[GL DEBUG CALLBACK ERROR]\033[0m\n" << "\033[1;33m" << message << "\033[0m" << std::endl;
-    ASSERT(true);
+    ASSERT();
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -21,7 +21,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         if (!monitor)
             glfwSetWindowMonitor(window, fullScreenMonitor, 0, 0, fullScreenMode->width, fullScreenMode->height, fullScreenMode->refreshRate);
         else
-            glfwSetWindowMonitor(window, NULL, 200, 200, SCREEN_WIDTH, SCREEN_HEIGHT, fullScreenMode->refreshRate);
+            glfwSetWindowMonitor(window, NULL, 200, 200, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT, fullScreenMode->refreshRate);
     }
 
     if (key == GLFW_KEY_EQUAL && action == GLFW_RELEASE)
@@ -42,7 +42,7 @@ void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader&
     vao.Bind();
     ib.Bind();
 
-    glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_POLYGON, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 /*
@@ -81,4 +81,18 @@ void Renderer::SetupGLEW()
     std::cout << "\033[1;32m" << glGetString(GL_VERSION) << "\033[0m" << std::endl;
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+GLFWwindow* Renderer::SetupGLFW()
+{
+    GLFWwindow* window;
+    /* Initialize the GLFW */
+    if (!glfwInit())
+        exit(-1);
+    window = glfwCreateWindow((int)SCREEN_WIDTH, (int)SCREEN_HEIGHT, "SandBox Application", NULL, NULL);
+    if (!window)
+        exit(-1);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+    return window;
 }

@@ -8,6 +8,7 @@
 #define SCREEN_WIDTH 960.0f
 #define SCREEN_HEIGHT 540.0f
 
+class VertexArray;
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
@@ -22,7 +23,6 @@ DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-
 class Renderer
 {
 public:
@@ -30,6 +30,7 @@ public:
     static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);
     static void SetupImGui(GLFWwindow* window);
     static void SetupGLEW();
+    static GLFWwindow* SetupGLFW();
 
 private:
 

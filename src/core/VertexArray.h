@@ -1,5 +1,6 @@
 #pragma once
 
+class VertexBuffer;
 #include "VertexBuffer.h"
 
 class VertexBufferLayout;

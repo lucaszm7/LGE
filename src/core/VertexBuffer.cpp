@@ -1,14 +1,13 @@
 #include "VertexBuffer.h"
-#include "Renderer.h"
 
-VertexBuffer::VertexBuffer(const void* data, unsigned int size)
+VertexBuffer::VertexBuffer(const void* data, unsigned int size, GLenum mode)
 {
     // Gen a buffer in the graphics card, and return the ID of that buffer
     glGenBuffers(1, &m_RendererID);
     // Tell the OpenGL what type is that buffer and selected
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
     // As we know the data we want, we can provide with data right way
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, data, mode);
 }
 
 VertexBuffer::~VertexBuffer()
