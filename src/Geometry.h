@@ -19,6 +19,7 @@ struct Shape
     virtual void Draw() {};
 };
 
+// S = Shape
 struct SPoint : Shape
 {
 public:
@@ -67,7 +68,7 @@ public:
             std::cerr << "Drawing nullptr.\n";
 
         m_VB->Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(*vertex) * vertex_size, &(*vertex));
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
         m_VAO->Bind();
         glEnable(GL_POINT_SMOOTH);
         glPointSize(radius);
@@ -75,10 +76,13 @@ public:
     }
 };
 
-struct Line : Shape
+// S = Shape
+struct SLine : Shape
 {
 public:
-    std::vector<Vertex> vertex;
+    Vertex* vertex;
+    unsigned int vertex_size;
+    float radius;
 
 private:
     std::unique_ptr<VertexArray> m_VAO;
@@ -86,67 +90,99 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    Line()
+    SLine(Point2D* p = nullptr, unsigned int v_size = 1, float r = 50)
     {
-        CreateLine();
+        vertex = p;
+        vertex_size = v_size;
+        radius = r;
+
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * 12, GL_DYNAMIC_DRAW);
+        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * vertex_size, GL_DYNAMIC_DRAW);
         VertexBufferLayout layout;
         layout.Push<float>(2);
         layout.Push<float>(4);
         m_VAO->AddBuffer(*m_VB, layout);
-        std::vector<unsigned int> index;
-        for (int i = 0; i < vertex.size(); ++i)
-        {
-            index.push_back(i);
-        }
 
-        m_IB = std::make_unique<IndexBuffer>(&index[0], index.size());
+        unsigned int* index = new unsigned int[vertex_size];
+        for (int i = 0; i < vertex_size; ++i)
+        {
+            index[i] = i;
+        }
+        m_IB = std::make_unique<IndexBuffer>(index, vertex_size);
     }
 
-    ~Line()
+    ~SLine()
     {
         m_VB->Unbind();
         m_VAO->Unbind();
     }
 
-    void CreateLine(glm::vec4 color = { 0.5f, 0.5f ,0.0f,1.0f })
+    void Draw(Point2D* pArray = nullptr)
     {
-        float size = 1.0f;
+        if (pArray)
+            vertex = pArray;
+        if (!vertex)
+            std::cerr << "Drawing nullptr.\n";
 
-        Vertex v0;
-        v0.Position.x = 0.0f;
-        v0.Position.y = 0.0f;
-        v0.Color.x = color.x;
-        v0.Color.y = color.y;
-        v0.Color.z = color.z;
-        v0.Color.w = color.w;
-
-        vertex.push_back(v0);
-
-        Vertex v1;
-        v1.Position.x = 1.0f;
-        v1.Position.y = 1.0f;
-        v1.Color.x = color.x;
-        v1.Color.y = color.y;
-        v1.Color.z = color.z;
-        v1.Color.w = color.w;
-
-        vertex.push_back(v1);
-
-    }
-
-    void Set(glm::vec4 c = { 0.0f, 1.0f ,0.0f,1.0f })
-    {
-        CreateLine();
-    }
-
-    void Draw()
-    {
         m_VB->Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex.size(), &vertex[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
         m_VAO->Bind();
         glDrawElements(GL_LINE_LOOP, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
+    }
+};
+
+// S = Shape
+struct SPolygon : Shape
+{
+public:
+    Vertex* vertex;
+    unsigned int vertex_size;
+    float radius;
+
+private:
+    std::unique_ptr<VertexArray> m_VAO;
+    std::unique_ptr<VertexBuffer> m_VB;
+    std::unique_ptr<IndexBuffer> m_IB;
+
+public:
+    SPolygon(Point2D* p = nullptr, unsigned int v_size = 1, float r = 50)
+    {
+        vertex = p;
+        vertex_size = v_size;
+        radius = r;
+
+        m_VAO = std::make_unique<VertexArray>();
+        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * vertex_size, GL_DYNAMIC_DRAW);
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        layout.Push<float>(4);
+        m_VAO->AddBuffer(*m_VB, layout);
+
+        unsigned int* index = new unsigned int[vertex_size];
+        for (int i = 0; i < vertex_size; ++i)
+        {
+            index[i] = i;
+        }
+        m_IB = std::make_unique<IndexBuffer>(index, vertex_size);
+    }
+
+    ~SPolygon()
+    {
+        m_VB->Unbind();
+        m_VAO->Unbind();
+    }
+
+    void Draw(Point2D* pArray = nullptr)
+    {
+        if (pArray)
+            vertex = pArray;
+        if (!vertex)
+            std::cerr << "Drawing nullptr.\n";
+
+        m_VB->Bind();
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
+        m_VAO->Bind();
+        glDrawElements(GL_POLYGON, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 };
 
@@ -320,9 +356,4 @@ public:
         m_VAO->Bind();
         glDrawElements(GL_POLYGON, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
-};
-
-struct Polygon : Shape
-{
-
 };

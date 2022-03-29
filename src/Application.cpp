@@ -31,14 +31,14 @@ private:
     Quad a;
     Tri b;
     std::unique_ptr<SPoint> m_SPoints;
+    std::unique_ptr<SLine> m_SLines;
+    std::unique_ptr<SPolygon> m_SPolygon;
     std::vector<Point2D> m_Points2D;
-    Line l;
 
 public:
     SudoTest()
         :a(posA[0], posA[1]),
-        b(posB[0], posB[1]),
-        l()
+        b(posB[0], posB[1])
     {
         m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 
@@ -63,6 +63,8 @@ public:
         m_Points2D.push_back(pc);
 
         m_SPoints = std::make_unique<SPoint>(&m_Points2D[0], m_Points2D.size());
+        m_SLines = std::make_unique<SLine>(&m_Points2D[0], m_Points2D.size());
+        m_SPolygon = std::make_unique<SPolygon>(&m_Points2D[0], m_Points2D.size());
     }
 
     ~SudoTest()
@@ -78,6 +80,11 @@ public:
     {
         m_Shader->Bind();
 
+        m_Shader->SetUniform1i("u_color", 1);
+        m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
+        m_SPolygon->Draw();
+        m_Shader->SetUniform1i("u_color", 0);
+
         a.Set(posA[0], posA[1]);
         a.Draw();
 
@@ -85,8 +92,11 @@ public:
         b.Draw();
 
         m_SPoints->Draw();
+        m_Shader->SetUniform1i("u_color", 1);
+        m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
+        m_SLines->Draw();
+        m_Shader->SetUniform1i("u_color", 0);
 
-        l.Draw();
     }
     void OnImGuiRender() override
     {

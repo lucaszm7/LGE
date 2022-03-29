@@ -7,12 +7,23 @@ layout(location = 1) in vec4 color;
 out vec4 v_Color;
 
 uniform mat4 u_MVP;
+uniform int u_color = 0;
+uniform vec4 u_Color;
 
 
 void main()
 {
     gl_Position = position;
-    v_Color = color;
+
+    if (u_color == 1)
+    {
+        v_Color = u_Color;
+    }
+
+    else
+    {
+        v_Color = color;
+    }
 }
 
 
