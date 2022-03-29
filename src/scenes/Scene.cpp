@@ -1,18 +1,21 @@
-#include "App.h"
+#include "Scene.h"
 
-namespace App
+namespace Scene
 {
-	AppMenu::AppMenu(AppBase*& currentTestPointer)
+	Menu::Menu(Scene_t*& currentTestPointer)
 		:m_CurrentTest(currentTestPointer)
 	{
 	}
 
-	void AppMenu::OnImGuiRender()
+	void Menu::OnImGuiRender()
 	{
 		for (auto& test : m_Tests)
 		{
 			if (ImGui::Button(test.first.c_str()))
+			{
 				m_CurrentTest = test.second();
+				c_SceneName = test.first;
+			}
 		}
 	}
 }

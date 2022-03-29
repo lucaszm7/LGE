@@ -1,9 +1,9 @@
 #pragma once
-#include "App.h"
+#include "Scene.h"
 
-namespace App
+namespace Scene
 {
-	class TestClearColor : public AppBase
+	class TestClearColor : public Scene_t
 	{
 	public:
 		TestClearColor();

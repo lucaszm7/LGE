@@ -36,6 +36,11 @@ void Renderer::Clear()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void Renderer::ClearColor(float v0, float v1, float v2, float v3)
+{
+    glClearColor(v0, v1, v2, v3);
+}
+
 void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader)
 {
     shader.Bind();
@@ -69,6 +74,44 @@ void Renderer::SetupImGui(GLFWwindow* window)
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+}
+
+void Renderer::CreateImGuiFrame()
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void Renderer::UpdateImGui()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+}
+
+void Renderer::UpdateGLFW(GLFWwindow* window)
+{
+    glfwMakeContextCurrent(window);
+    glfwSwapBuffers(window);
+    glfwSetKeyCallback(window, key_callback);
+    glfwPollEvents();
+}
+
+void Renderer::CleanUpImGui()
+{
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+void Renderer::CleanUpGLFW(GLFWwindow* window)
+{
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
 void Renderer::SetupGLEW()

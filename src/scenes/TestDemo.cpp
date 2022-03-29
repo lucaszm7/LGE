@@ -1,6 +1,6 @@
 #include "TestDemo.h"
 
-App::TestDemo::TestDemo()
+Scene::TestDemo::TestDemo()
     : 
         positions
             {
@@ -49,7 +49,7 @@ App::TestDemo::TestDemo()
     obj_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 }
 
-App::TestDemo::~TestDemo()
+Scene::TestDemo::~TestDemo()
 {
     // Unbind everthing
     VAO.Unbind();
@@ -59,12 +59,12 @@ App::TestDemo::~TestDemo()
     texture.Unbind();
 }
 
-void App::TestDemo::OnUpdate(float deltaTime)
+void Scene::TestDemo::OnUpdate(float deltaTime)
 {
 
 }
 
-void App::TestDemo::OnRender()
+void Scene::TestDemo::OnRender()
 {
     shader.Bind();
 
@@ -86,7 +86,7 @@ void App::TestDemo::OnRender()
     }
 }
 
-void App::TestDemo::OnImGuiRender()
+void Scene::TestDemo::OnImGuiRender()
 {
     {
         if (show_demo_window)

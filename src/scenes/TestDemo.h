@@ -1,12 +1,12 @@
 #pragma once
 
-#include "App.h"
+#include "Scene.h"
 
 #include "GLCore.h"
 
-namespace App
+namespace Scene
 {
-	class TestDemo : public AppBase
+	class TestDemo : public Scene_t
 	{
 	public:
 		TestDemo();

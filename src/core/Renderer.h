@@ -27,10 +27,16 @@ class Renderer
 {
 public:
     static void Clear();
+    static void ClearColor(float v0, float v1, float v2, float v3);
     static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);
-    static void SetupImGui(GLFWwindow* window);
-    static void SetupGLEW();
     static GLFWwindow* SetupGLFW();
+    static void SetupGLEW();
+    static void SetupImGui(GLFWwindow* window);
+    static void CreateImGuiFrame();
+    static void UpdateImGui();
+    static void UpdateGLFW(GLFWwindow* window);
+    static void CleanUpImGui();
+    static void CleanUpGLFW(GLFWwindow* window);
 
 private:
 

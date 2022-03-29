@@ -12,24 +12,17 @@
 #include "Geometry.h"
 #include "GLCore.h"
 
-#include "App.h"
+#include "Scene.h"
 #include "TestDemo.h"
 #include "TestClearColor.h"
 
 
-class SudoTest : public App::AppBase
+class SudoTest : public Scene::Scene_t
 {
 private:
 
     std::unique_ptr<Shader> m_Shader;
 
-    float posA[2] = { -0.5f, -0.5f };
-    float posB[2] = { -0.5f, -0.5f };
-    float posP[2] = { -0.5f, -0.5f };
-    float m_R = 50.0f;
-
-    Quad a;
-    Tri b;
     std::unique_ptr<SPoint> m_SPoints;
     std::unique_ptr<SLine> m_SLines;
     std::unique_ptr<SPolygon> m_SPolygon;
@@ -37,8 +30,6 @@ private:
 
 public:
     SudoTest()
-        :a(posA[0], posA[1]),
-        b(posB[0], posB[1])
     {
         m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 
@@ -85,12 +76,6 @@ public:
         m_SPolygon->Draw();
         m_Shader->SetUniform1i("u_color", 0);
 
-        a.Set(posA[0], posA[1]);
-        a.Draw();
-
-        b.Set(posB[0], posB[1]);
-        b.Draw();
-
         m_SPoints->Draw();
         m_Shader->SetUniform1i("u_color", 1);
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
@@ -100,10 +85,6 @@ public:
     }
     void OnImGuiRender() override
     {
-        ImGui::DragFloat2(" Pos A ", posA, 0.1f, -1.0f, 1.0f);
-        ImGui::DragFloat2(" Pos B ", posB, 0.1f, -1.0f, 1.0f);
-        ImGui::DragFloat2(" Pos P ", posP, 0.1f, -1.0f, 1.0f);
-        ImGui::DragFloat("Radius", &m_R, 10.0f, 10.0f, 300.0f);
     }
 };
 
@@ -113,63 +94,45 @@ int main(void)
     Renderer::SetupGLEW();
     Renderer::SetupImGui(window);
 
-    App::AppBase* currentApp = nullptr;
-    App::AppMenu* mainMenu = new App::AppMenu(currentApp);
+    Scene::Scene_t* currentApp = nullptr;
+    Scene::Menu* mainMenu = new Scene::Menu(currentApp);
     currentApp = mainMenu;
 
-    mainMenu->RegisterApp<App::TestClearColor>("Clear Color");
-    mainMenu->RegisterApp<App::TestDemo>("Base Demo");
+    mainMenu->RegisterApp<Scene::TestClearColor>("Clear Color");
+    mainMenu->RegisterApp<Scene::TestDemo>("Base Demo");
     mainMenu->RegisterApp<SudoTest>("Polygon Test");
 
-    glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
+    Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
     while (!glfwWindowShouldClose(window))
     {
         Renderer::Clear();
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        Renderer::CreateImGuiFrame();
 
         /* Render here */
-        if (currentApp)
+        ImGui::Begin(mainMenu->c_SceneName.c_str());
+        if (currentApp != mainMenu && ImGui::Button("<- Main Menu"))
         {
-            ImGui::Begin("App Menu");
-            if (currentApp != mainMenu && ImGui::Button("<- Main Menu"))
-            {
-                delete currentApp;
-                currentApp = mainMenu;
-                glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
-            }
-            currentApp->OnUpdate(0.0f);
-            currentApp->OnRender();
-            currentApp->OnImGuiRender();
-            ImGui::End();
+            delete currentApp;
+            currentApp = mainMenu;
+            mainMenu->c_SceneName = "Main Menu";
+            Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
         }
+        currentApp->OnUpdate(0.0f);
+        currentApp->OnRender();
+        currentApp->OnImGuiRender();
+        ImGui::End();
+        /* Render Ends */
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(window);
-
-        glfwSwapBuffers(window);
-        glfwSetKeyCallback(window, key_callback);
-        glfwPollEvents();
+        Renderer::UpdateImGui();
+        Renderer::UpdateGLFW(window);
     }
 
     if (currentApp != mainMenu)
         delete mainMenu;
     delete currentApp;
 
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    Renderer::CleanUpImGui();
+    Renderer::CleanUpGLFW(window);
     
     return 0;
 }

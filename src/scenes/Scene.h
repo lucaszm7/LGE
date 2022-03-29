@@ -7,23 +7,23 @@
 
 #include "imgui/imgui.h"
 
-namespace App
+namespace Scene
 {
-	class AppBase
+	class Scene_t
 	{
 	public:
-		AppBase() {}
-		virtual ~AppBase() {}
+		Scene_t() {}
+		virtual ~Scene_t() {}
 
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
 	};
 
-	class AppMenu : public AppBase
+	class Menu : public Scene_t
 	{
 	public:
-		AppMenu(AppBase*& currentTestPointer);
+		Menu(Scene_t*& currentTestPointer);
 		void OnImGuiRender() override;
 
 		template <typename T>
@@ -33,10 +33,10 @@ namespace App
 			m_Tests.push_back(std::make_pair(name, []() { return new T(); }));
 		}
 
+	public:
+		std::string c_SceneName = "Main Menu";
 	private:
-		AppBase*& m_CurrentTest;
-		std::vector< std::pair< std::string, std::function<AppBase* ()>>> m_Tests;
-
+		Scene_t*& m_CurrentTest;
+		std::vector< std::pair< std::string, std::function<Scene_t* ()>>> m_Tests;
 	};
-
 }
