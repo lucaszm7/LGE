@@ -2,11 +2,26 @@
 Learning and implementing OpenGL stuff
 
 Mostly following Cherno series on youtube, about OpenGL.
-Hope in the future build kinda of a render API/ Game Engine, or something like that.
-
 Now it has become kinda a 2D API/ CAD for drawing points, lines and polygons.
 
-# TODO:
-> Put Geometry in same header
-> Finish Polygon Struct
-> Finish Line Modes
+## DONE:
+> OpenGL Abstraction:
+    > Vertex Array Objects
+    > Vertex Buffer
+    > Index Buffer
+    > Layouts
+    > Shaders
+> Scenes
+> Geometry:
+    > Points
+    > Lines
+    > Polygons
+
+## TODO:
+
+> Fix Colors:
+    > Lines and Polygons should have the option for it's own color
+> Finish Line and Polygon Modes
+> Separate into different Projects (maybe create another repo called: "2D graphics api"):
+    > 2D Graphics API (core): OpenGL stuff and Scenes
+    > Geometry API
