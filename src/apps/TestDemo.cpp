@@ -20,7 +20,7 @@ App::TestDemo::TestDemo()
         // nº of vertex * size of each vertex
         vertexbuffer(positions, 4 * 4 * sizeof(float)),
         indexbuffer(indices, 6),
-        shader("res/shaders/Basic.shader"),
+        shader("res/shaders/Texture.shader"),
         texture("res/textures/goblin-12.png"),
         translation1(200.0f, 200.0f, 0.0f),
         translation2(200.0f, 200.0f, 0.0f)

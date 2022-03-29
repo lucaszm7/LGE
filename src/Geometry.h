@@ -1,4 +1,5 @@
 #pragma once
+
 #include "GLCore.h"
 #include <memory>
 #include <array>
@@ -7,20 +8,22 @@
 
 struct Vertex
 {
-    glm::vec2 Position;
-    glm::vec4 Color;
+    glm::vec2 Position = { 0.0f, 0.0f };
+    glm::vec4 Color = { 1.0f, 0.0f, 0.0f, 1.0f };;
 };
+
+using Point2D = Vertex;
 
 struct Shape
 {
     virtual void Draw() {};
-    virtual void Set(float x, float y) {};
 };
 
-struct Point : Shape
+struct SPoint : Shape
 {
 public:
-    Vertex vertex;
+    Vertex* vertex;
+    unsigned int vertex_size;
     float radius;
 
 private:
@@ -29,51 +32,42 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    Point(float x = 0.0f, float y = 0.0f, float r = 50)
+    SPoint(Point2D* p = nullptr, unsigned int v_size = 1, float r = 50)
     {
-        vertex = CreatePoint(x, y);
+        vertex = p;
+        vertex_size = v_size;
         radius = r;
+
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * 3, GL_DYNAMIC_DRAW);
+        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * vertex_size, GL_DYNAMIC_DRAW);
         VertexBufferLayout layout;
         layout.Push<float>(2);
         layout.Push<float>(4);
         m_VAO->AddBuffer(*m_VB, layout);
-        unsigned int index = 0;
-        m_IB = std::make_unique<IndexBuffer>(&index, 1);
+
+        unsigned int *index = new unsigned int[vertex_size];
+        for (int i = 0; i < vertex_size; ++i)
+        {
+            index[i] = i;
+        }
+        m_IB = std::make_unique<IndexBuffer>(index, vertex_size);
     }
 
-    ~Point()
+    ~SPoint()
     {
         m_VB->Unbind();
         m_VAO->Unbind();
     }
 
-    static Vertex CreatePoint(float x, float y, glm::vec4 color = { 0.0f, 1.0f ,0.0f,1.0f })
+    void Draw(Point2D* pArray = nullptr)
     {
-        float size = 1.0f;
+        if (pArray)
+            vertex = pArray;
+        if (!vertex)
+            std::cerr << "Drawing nullptr.\n";
 
-        Vertex v0;
-        v0.Position.x = x;
-        v0.Position.y = y;
-        v0.Color.x = color.x;
-        v0.Color.y = color.y;
-        v0.Color.z = color.z;
-        v0.Color.w = color.w;
-
-        return v0;
-    }
-
-    void Set(float x, float y, glm::vec4 c = { 1.0f, 0.0f ,0.0f,1.0f }, float r = 50)
-    {
-        radius = r;
-        vertex = CreatePoint(x, y, c);
-    }
-
-    void Draw()
-    {
         m_VB->Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertex), &vertex);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(*vertex) * vertex_size, &(*vertex));
         m_VAO->Bind();
         glEnable(GL_POINT_SMOOTH);
         glPointSize(radius);

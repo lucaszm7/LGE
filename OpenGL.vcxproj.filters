@@ -486,6 +486,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl">
       <Filter>Arquivos de Cabeçalho</Filter>
     </None>
+    <None Include="res\shaders\Texture.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Renderer.h">

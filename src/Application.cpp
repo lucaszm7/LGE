@@ -3,6 +3,9 @@
 #include <array>
 #include <vector>
 
+#include <cstdlib>
+#include <ctime>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -27,18 +30,41 @@ private:
 
     Quad a;
     Tri b;
-    Point p;
+    std::unique_ptr<SPoint> m_SPoints;
+    std::vector<Point2D> m_Points2D;
     Line l;
 
 public:
     SudoTest()
         :a(posA[0], posA[1]),
         b(posB[0], posB[1]),
-        p(0.0f, 0.0f),
         l()
     {
         m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
+
+        srand(time(0));
+        for (int i = 0; i < 50; ++i)
+        {
+            Point2D p;
+            p.Position = 
+            { 
+                -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f))), 
+                -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f))) 
+            };
+            m_Points2D.push_back(p);
+        }
+
+        Point2D pa, pb, pc;
+        pa.Position = { 0.0f, 0.0f };
+        pb.Position = { 0.5f, 0.0f };
+        pc.Position = { -0.5f, 0.0f };
+        m_Points2D.push_back(pa);
+        m_Points2D.push_back(pb);
+        m_Points2D.push_back(pc);
+
+        m_SPoints = std::make_unique<SPoint>(&m_Points2D[0], m_Points2D.size());
     }
+
     ~SudoTest()
     {
         m_Shader->Unbind();
@@ -58,8 +84,7 @@ public:
         b.Set(posB[0], posB[1]);
         b.Draw();
 
-        p.Set(posP[0], posP[1], glm::vec4( 1.0f, 0.0f ,0.0f,1.0f ), m_R);
-        p.Draw();
+        m_SPoints->Draw();
 
         l.Draw();
     }
