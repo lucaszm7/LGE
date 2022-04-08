@@ -23,9 +23,6 @@
     <ClCompile Include="src\core\IndexBuffer.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\core\Shader.cpp" />
-    <ClCompile Include="src\scenes\Scene.cpp" />
-    <ClCompile Include="src\scenes\TestClearColor.cpp" />
-    <ClCompile Include="src\scenes\TestDemo.cpp" />
     <ClCompile Include="src\core\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -187,6 +184,7 @@
     <ClInclude Include="src\core\IndexBuffer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Shader.h" />
+    <ClInclude Include="src\scenes\PolygonTest.h" />
     <ClInclude Include="src\scenes\Scene.h" />
     <ClInclude Include="src\scenes\TestClearColor.h" />
     <ClInclude Include="src\scenes\TestDemo.h" />

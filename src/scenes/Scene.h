@@ -23,8 +23,22 @@ namespace Scene
 	class Menu : public Scene_t
 	{
 	public:
-		Menu(Scene_t*& currentTestPointer);
-		void OnImGuiRender() override;
+		Menu(Scene_t*& currentTestPointer)
+			:m_CurrentTest(currentTestPointer)
+		{
+		}
+
+		void OnImGuiRender() override
+		{
+			for (auto& test : m_Tests)
+			{
+				if (ImGui::Button(test.first.c_str()))
+				{
+					m_CurrentTest = test.second();
+					c_SceneName = test.first;
+				}
+			}
+		}
 
 		template <typename T>
 		void RegisterApp(const std::string& name)

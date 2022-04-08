@@ -2,90 +2,120 @@
 #include <string>
 #include <array>
 #include <vector>
-
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Geometry.h"
 #include "GLCore.h"
-
+#include "Geometry.h"
 #include "Scene.h"
+
 #include "TestDemo.h"
 #include "TestClearColor.h"
+#include "PolygonTest.h"
 
-
-class SudoTest : public Scene::Scene_t
+class ConvexHull : public Scene::Scene_t
 {
 private:
-
     std::unique_ptr<Shader> m_Shader;
 
     std::unique_ptr<SPoint> m_SPoints;
     std::unique_ptr<SLine> m_SLines;
     std::unique_ptr<SPolygon> m_SPolygon;
-    std::vector<Point2D> m_Points2D;
-
+    std::vector<Point2D> m_PointsIn;
+    std::vector<Point2D> m_PointsOut;
+    std::vector<Point2D> m_rand;
 public:
-    SudoTest()
+
+    bool right_turn(glm::vec2 a, glm::vec2 b, glm::vec2 c) {
+        a *= 1000000.0f;
+        b *= 1000000.0f;
+        c *= 1000000.0f;
+        float val = (b.x - a.x) * (c.y - a.y) - 
+                    (b.y - a.y) * (c.x - a.x);
+        if (val < 0)
+            return true;       // right turn
+        return false;          // left turn
+    }
+
+    ConvexHull() 
     {
         m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 
-        srand(time(0));
+        // srand(time(0));
         for (int i = 0; i < 50; ++i)
         {
             Point2D p;
-            p.Position = 
-            { 
-                -1.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f))), 
-                -1.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f))) 
+            p.Position =
+            {
+                -1.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f))),
+                -1.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - -1.0f)))
             };
-            m_Points2D.push_back(p);
+
+            m_PointsIn.push_back(p);
         }
 
-        Point2D pa, pb, pc;
-        pa.Position = { 0.0f, 0.0f };
-        pb.Position = { 0.5f, 0.0f };
-        pc.Position = { -0.5f, 0.0f };
-        m_Points2D.push_back(pa);
-        m_Points2D.push_back(pb);
-        m_Points2D.push_back(pc);
+        std::sort(m_PointsIn.begin(), m_PointsIn.end(),
+            [](Point2D const& a, Point2D const& b)
+            {
+                return a.Position.x < b.Position.x;
+            }
+            );
 
-        m_SPoints = std::make_unique<SPoint>(&m_Points2D[0], m_Points2D.size());
-        m_SLines = std::make_unique<SLine>(&m_Points2D[0], m_Points2D.size());
-        m_SPolygon = std::make_unique<SPolygon>(&m_Points2D[0], m_Points2D.size());
+        m_PointsOut = m_PointsIn;
+
+        unsigned int i = 0;
+        while (i < m_PointsOut.size() - 2)
+        {
+            if (!right_turn(m_PointsOut[i].Position,
+                            m_PointsOut[i + 1].Position,
+                            m_PointsIn[m_PointsIn.size() - 1].Position))
+            {
+                m_PointsOut.erase(m_PointsOut.begin() + i + 1);
+            }
+
+            else
+                ++i;
+        }
+
+        m_SPoints = std::make_unique<SPoint>(&m_PointsIn[0], m_PointsIn.size());
+        m_SLines = std::make_unique<SLine>(&m_PointsOut[0], m_PointsOut.size());
+        m_SPolygon = std::make_unique<SPolygon>(&m_PointsOut[0], m_PointsIn.size());
     }
 
-    ~SudoTest()
+    ~ConvexHull()
     {
         m_Shader->Unbind();
     }
 
-    void OnUpdate(float deltaTime) override
+    void OnUpdate(float deltaTime) override 
     {
-
+        
     }
-    void OnRender() override
+    void OnRender() override 
     {
         m_Shader->Bind();
 
-        m_Shader->SetUniform1i("u_color", 1);
-        m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
+        /*m_Shader->SetUniform1i("u_color", 1);
+        m_Shader->SetUniform4f("u_Color", 70.f/256.f, 82.f/256.f, 87.0f/256.f, 1.0f);
         m_SPolygon->Draw();
-        m_Shader->SetUniform1i("u_color", 0);
+        m_Shader->SetUniform1i("u_color", 0);*/
 
-        m_SPoints->Draw();
+        m_SPoints->Draw(&m_PointsIn[0]);
         m_Shader->SetUniform1i("u_color", 1);
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
         m_SLines->Draw();
         m_Shader->SetUniform1i("u_color", 0);
 
+        m_Shader->SetUniform1i("u_color", 1);
+        m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
+        m_SPoints->Draw(&m_PointsOut[0]);
+        m_Shader->SetUniform1i("u_color", 0);
     }
-    void OnImGuiRender() override
-    {
-    }
+    void OnImGuiRender() override {}
 };
 
 int main(void)
@@ -98,9 +128,10 @@ int main(void)
     Scene::Menu* mainMenu = new Scene::Menu(currentApp);
     currentApp = mainMenu;
 
-    mainMenu->RegisterApp<Scene::TestClearColor>("Clear Color");
-    mainMenu->RegisterApp<Scene::TestDemo>("Base Demo");
-    mainMenu->RegisterApp<SudoTest>("Polygon Test");
+    mainMenu->RegisterApp<Scene::TestClearColor>("Clear Color Test");
+    mainMenu->RegisterApp<Scene::TestDemo>("Texture Test");
+    mainMenu->RegisterApp<PolygonTest>("Polygon Test");
+    mainMenu->RegisterApp<ConvexHull>("ConvexHull");
 
     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
     while (!glfwWindowShouldClose(window))

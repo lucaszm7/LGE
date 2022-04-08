@@ -8,8 +8,26 @@
 
 struct Vertex
 {
-    glm::vec2 Position = { 0.0f, 0.0f };
-    glm::vec4 Color = { 1.0f, 0.0f, 0.0f, 1.0f };;
+    glm::vec2 Position;
+    glm::vec4 Color;
+
+    Vertex()
+    {
+        Position = { 0.0f, 0.0f };
+        Color = { 1.0f, 0.0f, 0.0f, 1.0f };
+    }
+
+    Vertex(glm::vec2 p)
+    {
+        Position = p;
+        Color = { 1.0f, 0.0f, 0.0f, 1.0f };
+    }
+
+    Vertex(glm::vec2 p, glm::vec4 c)
+    {
+        Position = p;
+        Color = c;
+    }
 };
 
 using Point2D = Vertex;
@@ -127,7 +145,7 @@ public:
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
         m_VAO->Bind();
-        glDrawElements(GL_LINE_LOOP, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_LINE_STRIP, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 };
 
