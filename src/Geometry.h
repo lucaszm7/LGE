@@ -17,6 +17,13 @@ struct Vertex
         Color = { 1.0f, 0.0f, 0.0f, 1.0f };
     }
 
+    Vertex(float x, float y)
+    {
+        glm::vec2 p(x, y);
+        Position = p;
+        Color = { 1.0f, 0.0f, 0.0f, 1.0f };
+    }
+    
     Vertex(glm::vec2 p)
     {
         Position = p;
@@ -28,6 +35,11 @@ struct Vertex
         Position = p;
         Color = c;
     }
+
+    bool operator <(const Vertex& p) const {
+        return Position.x < p.Position.x || (Position.x == p.Position.x && Position.y < p.Position.y);
+    }
+
 };
 
 using Point2D = Vertex;
@@ -46,30 +58,33 @@ public:
     float radius;
 
 private:
+    std::vector<unsigned int> m_Index;
+
+private:
     std::unique_ptr<VertexArray> m_VAO;
     std::unique_ptr<VertexBuffer> m_VB;
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    SPoint(Point2D* p = nullptr, unsigned int v_size = 1, float r = 50)
+    SPoint(Point2D* p = nullptr, unsigned int v_size = 10, float r = 50)
     {
         vertex = p;
         vertex_size = v_size;
         radius = r;
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * vertex_size, GL_DYNAMIC_DRAW);
+        m_VB = std::make_unique<VertexBuffer>(vertex, sizeof(Vertex) * vertex_size, GL_DYNAMIC_DRAW);
         VertexBufferLayout layout;
         layout.Push<float>(2);
         layout.Push<float>(4);
         m_VAO->AddBuffer(*m_VB, layout);
 
-        unsigned int *index = new unsigned int[vertex_size];
+        m_Index.resize(vertex_size);
         for (int i = 0; i < vertex_size; ++i)
         {
-            index[i] = i;
+            m_Index[i] = i;
         }
-        m_IB = std::make_unique<IndexBuffer>(index, vertex_size);
+        m_IB = std::make_unique<IndexBuffer>(&m_Index[0], vertex_size);
     }
 
     ~SPoint()
@@ -78,19 +93,42 @@ public:
         m_VAO->Unbind();
     }
 
-    void Draw(Point2D* pArray = nullptr)
+    void Draw(Point2D* pArray = nullptr, size_t v_size = 0)
     {
-        if (pArray)
+        if (pArray && v_size != 0)
+        {
             vertex = pArray;
+            if (v_size > m_Index.size())
+            {
+                printf("\n\nShouldt be running...\n\n");
+                m_Index.resize(v_size);
+                for (int i = 0; i < v_size; ++i)
+                    m_Index[i] = i;
+                m_IB.release();
+                m_IB = std::make_unique<IndexBuffer>(&m_Index[0], m_Index.size());
+
+                m_VB.release();
+                m_VB = std::make_unique<VertexBuffer>(vertex, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
+                VertexBufferLayout layout;
+                layout.Push<float>(2);
+                layout.Push<float>(4);
+                m_VAO->AddBuffer(*m_VB, layout);
+            }
+            vertex_size = v_size;
+        }
+
         if (!vertex)
             std::cerr << "Drawing nullptr.\n";
 
+        m_VAO->Bind();
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
+        m_IB->Bind();
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * vertex_size, &(m_Index[0]));
         m_VAO->Bind();
         glEnable(GL_POINT_SMOOTH);
         glPointSize(radius);
-        glDrawElements(GL_POINTS, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_POINTS, vertex_size, GL_UNSIGNED_INT, nullptr);
     }
 };
 
@@ -135,7 +173,7 @@ public:
         m_VAO->Unbind();
     }
 
-    void Draw(Point2D* pArray = nullptr)
+    void Draw(GLenum mode = GL_LINE_STRIP, Point2D* pArray = nullptr)
     {
         if (pArray)
             vertex = pArray;
@@ -145,7 +183,7 @@ public:
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
         m_VAO->Bind();
-        glDrawElements(GL_LINE_STRIP, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(mode, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 };
 

@@ -1,7 +1,7 @@
 #include "IndexBuffer.h"
 #include "Renderer.h"
 
-IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
+IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count, GLenum mode)
     : m_Count(count)
 {
     // Gen a buffer in the graphics card, and return the ID of that buffer
@@ -9,7 +9,7 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
     // Tell the OpenGL what type is that buffer and selected
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
     // As we know the data we want, we can provide with data right way
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, mode);
 }
 
 IndexBuffer::~IndexBuffer()

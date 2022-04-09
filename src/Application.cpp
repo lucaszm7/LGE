@@ -31,12 +31,9 @@ private:
 public:
 
     bool right_turn(glm::vec2 a, glm::vec2 b, glm::vec2 c) {
-        a *= 1000000.0f;
-        b *= 1000000.0f;
-        c *= 1000000.0f;
         float val = (b.x - a.x) * (c.y - a.y) - 
                     (b.y - a.y) * (c.x - a.x);
-        if (val < 0)
+        if (val <= 0)
             return true;       // right turn
         return false;          // left turn
     }
@@ -58,32 +55,69 @@ public:
             m_PointsIn.push_back(p);
         }
 
-        std::sort(m_PointsIn.begin(), m_PointsIn.end(),
-            [](Point2D const& a, Point2D const& b)
-            {
-                return a.Position.x < b.Position.x;
-            }
-            );
 
-        m_PointsOut = m_PointsIn;
+        m_PointsIn.push_back(Point2D(-0.7f,  0.0f));
+        m_PointsIn.push_back(Point2D(-0.5f, -0.2f));
+        m_PointsIn.push_back(Point2D(-0.4f, +0.2f));
+        m_PointsIn.push_back(Point2D(-0.1f, +0.2f));
+        m_PointsIn.push_back(Point2D( 0.0f, -0.2f));
+        m_PointsIn.push_back(Point2D(+0.2f, +0.6f));
+        m_PointsIn.push_back(Point2D(+0.4f, +0.2f));
+        m_PointsIn.push_back(Point2D(+0.5f, -0.1f));
+        m_PointsIn.push_back(Point2D(+0.8f,  0.0f));
+        std::sort(m_PointsIn.begin(), m_PointsIn.end());
 
-        unsigned int i = 0;
-        while (i < m_PointsOut.size() - 2)
+
+        /*size_t n = m_PointsIn.size(), k = 0;
+        std::vector<Point2D> H(2 * n);
+
+        for (size_t i = 0; i < n; ++i)
         {
-            if (!right_turn(m_PointsOut[i].Position,
-                            m_PointsOut[i + 1].Position,
-                            m_PointsIn[m_PointsIn.size() - 1].Position))
-            {
-                m_PointsOut.erase(m_PointsOut.begin() + i + 1);
-            }
-
-            else
-                ++i;
+            while (k >= 2 && right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i].Position))
+                k--;
+            H[k] = m_PointsIn[i];
+            k++;
         }
+
+        for (size_t i = n - 1, t = k + 1; i > 0; --i) {
+            while (k >= t && right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i - 1].Position)) 
+                k--;
+            H[k] = m_PointsIn[i - 1];
+            k++;
+        }
+
+        H.resize(k - 1);
+        m_PointsOut = H;*/
+
+
+        std::vector<Point2D> H(2 * m_PointsIn.size());
+        unsigned int i = 0, k = 0;
+        while (i < m_PointsIn.size())
+        {
+            while (k >= 2 && !right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i].Position))
+                --k;
+            H[k] = m_PointsIn[i];
+            ++k;
+            ++i;
+        }
+        
+        i = m_PointsIn.size() - 1;
+        unsigned int t = k + 1;
+        while (i > 0)
+        {
+            while (k >= t && !right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i - 1].Position))
+                --k;
+            H[k] = m_PointsIn[i - 1];
+            k++;
+            i--;
+        }
+
+        H.resize(k-1);
+        m_PointsOut = H;
 
         m_SPoints = std::make_unique<SPoint>(&m_PointsIn[0], m_PointsIn.size());
         m_SLines = std::make_unique<SLine>(&m_PointsOut[0], m_PointsOut.size());
-        m_SPolygon = std::make_unique<SPolygon>(&m_PointsOut[0], m_PointsIn.size());
+        m_SPolygon = std::make_unique<SPolygon>(&m_PointsOut[0], m_PointsOut.size());
     }
 
     ~ConvexHull()
@@ -98,22 +132,16 @@ public:
     void OnRender() override 
     {
         m_Shader->Bind();
-
-        /*m_Shader->SetUniform1i("u_color", 1);
-        m_Shader->SetUniform4f("u_Color", 70.f/256.f, 82.f/256.f, 87.0f/256.f, 1.0f);
-        m_SPolygon->Draw();
-        m_Shader->SetUniform1i("u_color", 0);*/
-
-        m_SPoints->Draw(&m_PointsIn[0]);
         m_Shader->SetUniform1i("u_color", 1);
+        
+        m_Shader->SetUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
+        m_SPoints->Draw(&m_PointsIn[0], m_PointsIn.size());
+
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
-        m_SLines->Draw();
-        m_Shader->SetUniform1i("u_color", 0);
+        m_SLines->Draw(GL_LINE_LOOP);
 
-        m_Shader->SetUniform1i("u_color", 1);
         m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
-        m_SPoints->Draw(&m_PointsOut[0]);
-        m_Shader->SetUniform1i("u_color", 0);
+        m_SPoints->Draw(&m_PointsOut[0], m_PointsOut.size());
     }
     void OnImGuiRender() override {}
 };
