@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "Renderer.h"
 
 void GLAPIENTRY
@@ -29,6 +28,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         std::cout << "Equals Pressed!\n";
     }
 
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
 
 void Renderer::Clear()
@@ -96,7 +100,6 @@ void Renderer::UpdateGLFW(GLFWwindow* window)
 {
     glfwMakeContextCurrent(window);
     glfwSwapBuffers(window);
-    glfwSetKeyCallback(window, key_callback);
     glfwPollEvents();
 }
 
@@ -137,5 +140,9 @@ GLFWwindow* Renderer::SetupGLFW()
         exit(-1);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     return window;
 }

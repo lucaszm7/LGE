@@ -55,41 +55,9 @@ public:
             m_PointsIn.push_back(p);
         }
 
-
-        m_PointsIn.push_back(Point2D(-0.7f,  0.0f));
-        m_PointsIn.push_back(Point2D(-0.5f, -0.2f));
-        m_PointsIn.push_back(Point2D(-0.4f, +0.2f));
-        m_PointsIn.push_back(Point2D(-0.1f, +0.2f));
-        m_PointsIn.push_back(Point2D( 0.0f, -0.2f));
-        m_PointsIn.push_back(Point2D(+0.2f, +0.6f));
-        m_PointsIn.push_back(Point2D(+0.4f, +0.2f));
-        m_PointsIn.push_back(Point2D(+0.5f, -0.1f));
-        m_PointsIn.push_back(Point2D(+0.8f,  0.0f));
         std::sort(m_PointsIn.begin(), m_PointsIn.end());
 
-
-        /*size_t n = m_PointsIn.size(), k = 0;
-        std::vector<Point2D> H(2 * n);
-
-        for (size_t i = 0; i < n; ++i)
-        {
-            while (k >= 2 && right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i].Position))
-                k--;
-            H[k] = m_PointsIn[i];
-            k++;
-        }
-
-        for (size_t i = n - 1, t = k + 1; i > 0; --i) {
-            while (k >= t && right_turn(H[k - 2].Position, H[k - 1].Position, m_PointsIn[i - 1].Position)) 
-                k--;
-            H[k] = m_PointsIn[i - 1];
-            k++;
-        }
-
-        H.resize(k - 1);
-        m_PointsOut = H;*/
-
-
+        // Up Part
         std::vector<Point2D> H(2 * m_PointsIn.size());
         unsigned int i = 0, k = 0;
         while (i < m_PointsIn.size())
@@ -101,6 +69,7 @@ public:
             ++i;
         }
         
+        // Dows Part
         i = m_PointsIn.size() - 1;
         unsigned int t = k + 1;
         while (i > 0)
