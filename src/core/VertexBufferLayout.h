@@ -35,7 +35,7 @@ public:
 	template <typename T>
 	void Push(unsigned int count)
 	{
-		static_assert(false);
+		__debugbreak();
 	}
 
 	// Set up 1 attrib in the vertex buffer
