@@ -35,6 +35,18 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+void Renderer::Init(GLFWwindow*& window)
+{
+    window = Renderer::SetupGLFW();
+    Renderer::SetupGLEW();
+    Renderer::SetupImGui(window);
+}
+
+int Renderer::WindowShouldClose(GLFWwindow* window)
+{
+    return glfwWindowShouldClose(window);
+}
+
 void Renderer::Clear()
 {
     glClear(GL_COLOR_BUFFER_BIT);

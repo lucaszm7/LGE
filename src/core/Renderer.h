@@ -26,6 +26,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 class Renderer
 {
 public:
+    GLFWwindow* Window;
+public:
+    static void Init(GLFWwindow*& window);
+    static int WindowShouldClose(GLFWwindow* window);
     static void Clear();
     static void ClearColor(float v0, float v1, float v2, float v3);
     static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);
@@ -37,7 +41,4 @@ public:
     static void UpdateGLFW(GLFWwindow* window);
     static void CleanUpImGui();
     static void CleanUpGLFW(GLFWwindow* window);
-
-private:
-
 };

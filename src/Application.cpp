@@ -1,16 +1,7 @@
-// Draw Stuff
-#include "GLCore.h"
-#include "Geometry.h"
-#include "Scene.h"
-
-// Example Scenes
-#include "TestDemo.h"
-#include "TestClearColor.h"
-#include "PolygonTest.h"
-#include "ConvexHull.h"
+#include "Application.h"
 
 
-class QuadTree : public Scene::Scene_t
+class QuadTree : public LGE::Scene_t
 {
 private:
     std::unique_ptr<Shader> m_Shader;
@@ -49,51 +40,15 @@ public:
 
 int main(int argc, char** argv)
 {
-    GLFWwindow* window = Renderer::SetupGLFW();
-    Renderer::SetupGLEW();
-    Renderer::SetupImGui(window);
+    LGE::Application Demo;
 
-    Scene::Scene_t* currentApp = nullptr;
-    Scene::Menu* mainMenu = new Scene::Menu(currentApp);
-    currentApp = mainMenu;
+    Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");
+    Demo.RegisterScene<LGE::TestDemo>("Texture Test");
+    Demo.RegisterScene<PolygonTest>("Polygon Test");
+    Demo.RegisterScene<ConvexHull>("ConvexHull");
+    Demo.RegisterScene<QuadTree>("QuadTree");
 
-    mainMenu->RegisterApp<Scene::TestClearColor>("Clear Color Test");
-    mainMenu->RegisterApp<Scene::TestDemo>("Texture Test");
-    mainMenu->RegisterApp<PolygonTest>("Polygon Test");
-    mainMenu->RegisterApp<ConvexHull>("ConvexHull");
-    mainMenu->RegisterApp<QuadTree>("QuadTree");
+    Demo.Run();
 
-    Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
-    while (!glfwWindowShouldClose(window))
-    {
-        Renderer::Clear();
-        Renderer::CreateImGuiFrame();
-
-        /* Render here */
-        ImGui::Begin(mainMenu->c_SceneName.c_str());
-        if (currentApp != mainMenu && ImGui::Button("<- Main Menu"))
-        {
-            delete currentApp;
-            currentApp = mainMenu;
-            mainMenu->c_SceneName = "Main Menu";
-            Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
-        }
-        currentApp->OnUpdate(0.0f);
-        currentApp->OnRender();
-        currentApp->OnImGuiRender();
-        ImGui::End();
-        /* Render Ends */
-
-        Renderer::UpdateImGui();
-        Renderer::UpdateGLFW(window);
-    }
-
-    if (currentApp != mainMenu)
-        delete mainMenu;
-    delete currentApp;
-
-    Renderer::CleanUpImGui();
-    Renderer::CleanUpGLFW(window);
-    
     return 0;
 }

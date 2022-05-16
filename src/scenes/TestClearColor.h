@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 
 
-namespace Scene
+namespace LGE
 {
 	class TestClearColor : public Scene_t
 	{

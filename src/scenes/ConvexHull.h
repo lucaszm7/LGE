@@ -12,7 +12,7 @@
 #include "Geometry.h"
 #include "Scene.h"
 
-class ConvexHull : public Scene::Scene_t
+class ConvexHull : public LGE::Scene_t
 {
 private:
     std::unique_ptr<Shader> m_Shader;

@@ -102,7 +102,6 @@ public:
             vertex = pArray;
             if (v_size > m_Index.size())
             {
-                printf("\n\nShouldt be running...\n\n");
                 m_Index.resize(v_size);
                 for (int i = 0; i < v_size; ++i)
                     m_Index[i] = i;

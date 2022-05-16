@@ -4,7 +4,7 @@
 
 #include "GLCore.h"
 
-namespace Scene
+namespace LGE
 {
 	class TestDemo : public Scene_t
 	{

@@ -4,7 +4,7 @@
 #include "GLCore.h"
 #include "Geometry.h"
 
-class PolygonTest : public Scene::Scene_t
+class PolygonTest : public LGE::Scene_t
 {
 private:
 
