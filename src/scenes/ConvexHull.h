@@ -17,8 +17,8 @@ class ConvexHull : public LGE::Scene_t
 private:
     std::unique_ptr<Shader> m_Shader;
 
-    std::unique_ptr<SPoint> m_SPoints;
-    std::unique_ptr<SLine> m_SLines;
+    std::unique_ptr<DrawPoint> m_DrawPoints;
+    std::unique_ptr<DrawLine> m_DrawLines;
     std::unique_ptr<SPolygon> m_SPolygon;
     std::vector<Point2D> m_PointsIn;
     std::vector<Point2D> m_PointsOut;
@@ -79,8 +79,8 @@ public:
         H.resize(k - 1);
         m_PointsOut = H;
 
-        m_SPoints = std::make_unique<SPoint>(&m_PointsIn[0], m_PointsIn.size());
-        m_SLines = std::make_unique<SLine>(&m_PointsOut[0], m_PointsOut.size());
+        m_DrawPoints = std::make_unique<DrawPoint>(&m_PointsIn[0], m_PointsIn.size());
+        m_DrawLines = std::make_unique<DrawLine>(&m_PointsOut[0], m_PointsOut.size());
         m_SPolygon = std::make_unique<SPolygon>(&m_PointsOut[0], m_PointsOut.size());
     }
 
@@ -99,13 +99,14 @@ public:
         m_Shader->SetUniform1i("u_color", 1);
 
         m_Shader->SetUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
-        m_SPoints->Draw(&m_PointsIn[0], m_PointsIn.size());
+        m_DrawPoints->Draw(&m_PointsIn[0], m_PointsIn.size());
 
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
-        m_SLines->Draw(GL_LINE_LOOP);
+        m_DrawLines->type = LineType::LOOP;
+        m_DrawLines->Draw();
 
         m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
-        m_SPoints->Draw(&m_PointsOut[0], m_PointsOut.size());
+        m_DrawPoints->Draw(&m_PointsOut[0], m_PointsOut.size());
     }
     void OnImGuiRender() override {}
 };

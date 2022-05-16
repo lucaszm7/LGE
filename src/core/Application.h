@@ -16,16 +16,16 @@ namespace LGE
         Renderer renderer;
         LGE::Menu* m_MainMenu;
         LGE::Scene_t* m_CurrentApp;
+
     public:
         Application()
         {
-            
             Renderer::Init(renderer.Window);
             m_CurrentApp = nullptr;
             m_MainMenu = new LGE::Menu(m_CurrentApp);
             m_CurrentApp = m_MainMenu;
-
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
+
         }
 
         template <typename T>
