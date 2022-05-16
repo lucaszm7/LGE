@@ -1,9 +1,11 @@
 #pragma once
 
-#include "GLCore.h"
+#include <iostream>
 #include <memory>
 #include <array>
 #include <vector>
+
+#include "GLCore.h"
 
 
 struct Vertex
