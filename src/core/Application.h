@@ -5,12 +5,6 @@
 #include "Geometry.h"
 #include "Scene.h"
 
-// Example Scenes
-#include "TestDemo.h"
-#include "TestClearColor.h"
-#include "PolygonTest.h"
-#include "ConvexHull.h"
-
 namespace LGE
 {
     class Application

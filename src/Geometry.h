@@ -46,6 +46,12 @@ struct Vertex
 
 using Point2D = Vertex;
 
+inline std::ostream& operator << (std::ostream& out, Vertex v)
+{
+    out << v.Position.x << ", " << v.Position.y;
+    return out;
+}
+
 struct Shape
 {
     virtual void Draw() {};
