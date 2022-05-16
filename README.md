@@ -8,17 +8,25 @@ Start as a fork from my other project named "OpenGL", it grow up when I needed f
 ## Implementation
 
 Provides an abstraction for creating windows, GUI, and render uneder LGE namespace.
-It's necessary create a class inheriting from "LGE::Scene_t", overloading OnUpdate(), OnRender() and OnImGui()
+It's necessary create a class inheriting from `LGE::Scene_t`, overloading `OnUpdate()`, `OnRender()` and `OnImGui()`
 methods.
-In main, creates a LGE::Application object, register the Scenes you want with App.RegisterClass<Scene>(name).
-And then run the Application App.run();
+In main, creates a `LGE::Application object`, register the Scenes you want with `App.RegisterClass<Scene>(name)`.
+And then run the Application `App.run()`;
 
 ```c++
 #include "Application.h"
 
 class My_Scene : public LGE::Scene_t
 {
-    public:
+private:
+    std::unique_ptr<Shader> m_Shader;
+    std::unique_ptr<SPoint> m_SPoints;
+    glm::mat4 m_Proj;
+
+    std::vector<Point2D> m_PointsIn;
+
+
+public:
     QuadTree(int argc = 0, char** argv = nullptr)
         : m_Proj(glm::ortho(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, -1.0f, 1.0f))
     {
@@ -74,24 +82,29 @@ int main(int argc, char** argv)
 }
 ```
 
-## DONE:
-> OpenGL Abstraction:
-    > Vertex Array Objects
-    > Vertex Buffer
-    > Index Buffer
-    > Layouts
-    > Shaders
-> Scenes
-> Geometry:
-    > Points
-    > Lines
-    > Polygons
+- - - -
 
 ## TODO:
 
-> Fix Colors:
-    > Lines and Polygons should have the option for it's own color
-> Finish Line and Polygon Modes
-> Separate into different Projects (maybe create another repo called: "2D graphics api"):
-    > 2D Graphics API (core): OpenGL stuff and Scenes
-    > Geometry API
+- Finish Line and Polygon Modes
+- 2D Camera
+- 3D Camera
+- Abstract Shapes into:
+    - Renderer::DrawPoint...
+- LGE compile to static lib and it's linked in other projects
+
+
+## DONE:
+- Library 
+- OpenGL Abstraction:
+    - Vertex Array Objects
+    - Vertex Buffer
+    - Index Buffer
+    - Layouts
+    - Shaders
+- Scenes Layout
+- Geometry:
+    - Points
+    - Lines
+    - Polygons
+- Application Architecture
