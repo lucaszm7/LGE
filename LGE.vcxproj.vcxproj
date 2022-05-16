@@ -193,6 +193,7 @@
     <ClInclude Include="src\scenes\TestDemo.h" />
     <ClInclude Include="src\core\Texture.h" />
     <ClInclude Include="src\Geometry.h" />
+    <ClInclude Include="src\utility\utils.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_relational.hpp" />

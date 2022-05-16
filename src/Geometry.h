@@ -38,7 +38,7 @@ struct Vertex
         Color = c;
     }
 
-    bool operator <(const Vertex& p) const {
+    bool operator < (const Vertex& p) const {
         return Position.x < p.Position.x || (Position.x == p.Position.x && Position.y < p.Position.y);
     }
 

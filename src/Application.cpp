@@ -28,8 +28,8 @@ public:
             Point2D p;
             p.Position =
             {
-                0.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (SCREEN_WIDTH - 0.0f))),
-                0.0f + static_cast<float> (rand()) / (static_cast <float> (RAND_MAX / (SCREEN_HEIGHT - 0.0f)))
+                LGE::rand(0.0f, SCREEN_WIDTH),
+                LGE::rand(0.0f, SCREEN_HEIGHT)
             };
             m_PointsIn.push_back(p);
         }

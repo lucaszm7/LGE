@@ -5,6 +5,9 @@
 #include "Geometry.h"
 #include "Scene.h"
 
+// Utility
+#include "utility/utils.h"
+
 namespace LGE
 {
     class Application
