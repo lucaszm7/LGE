@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-
 #include "GLCore.h"
 
 namespace LGE
@@ -80,7 +79,7 @@ namespace LGE
                 glm::mat4 mvp = projOrtho * view * model;
                 shader.SetUniformMat4f("u_MVP", mvp);
                 shader.SetUniform4f("u_Color", obj_color.x * obj_color.w, obj_color.y * obj_color.w, obj_color.z * obj_color.w, obj_color.w);
-                renderer.Draw(VAO, indexbuffer, shader);
+                Renderer::Draw(VAO, indexbuffer, shader);
             }
 
             {
@@ -88,7 +87,7 @@ namespace LGE
                 glm::mat4 mvp = projOrtho * view * model;
                 shader.SetUniformMat4f("u_MVP", mvp);
                 shader.SetUniform4f("u_Color", obj_color.x * obj_color.w, obj_color.y * obj_color.w, obj_color.z * obj_color.w, obj_color.w);
-                renderer.Draw(VAO, indexbuffer, shader);
+                Renderer::Draw(VAO, indexbuffer, shader);
             }
         }
 		void OnImGuiRender() override
@@ -117,7 +116,6 @@ namespace LGE
 		glm::vec3 translation1;
 		glm::vec3 translation2;
 		bool show_demo_window = false;
-		Renderer renderer;
 		VertexArray VAO;
 		VertexBufferLayout layout;
 		glm::mat4 projOrtho;

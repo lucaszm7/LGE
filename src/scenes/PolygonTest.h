@@ -20,7 +20,7 @@ public:
     {
         m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 
-        srand(time(0));
+        srand((unsigned int)time(0));
         for (int i = 0; i < 50; ++i)
         {
             Point2D p;

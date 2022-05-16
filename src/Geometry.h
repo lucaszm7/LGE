@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <memory>
-#include <array>
 #include <vector>
+#include <array>
 
 #include "GLCore.h"
 
@@ -43,15 +43,14 @@ struct Vertex
     }
 
 };
-
 using Point2D = Vertex;
-
 inline std::ostream& operator << (std::ostream& out, Vertex v)
 {
     out << v.Position.x << ", " << v.Position.y;
     return out;
 }
 
+// Abstract Class
 struct Shape
 {
     virtual void Draw() {};
@@ -88,7 +87,7 @@ public:
         m_VAO->AddBuffer(*m_VB, layout);
 
         m_Index.resize(vertex_size);
-        for (int i = 0; i < vertex_size; ++i)
+        for (unsigned int i = 0; i < vertex_size; ++i)
         {
             m_Index[i] = i;
         }
@@ -109,7 +108,7 @@ public:
             if (v_size > m_Index.size())
             {
                 m_Index.resize(v_size);
-                for (int i = 0; i < v_size; ++i)
+                for (unsigned int i = 0; i < v_size; ++i)
                     m_Index[i] = i;
                 m_IB.release();
                 m_IB = std::make_unique<IndexBuffer>(&m_Index[0], m_Index.size());
@@ -125,7 +124,10 @@ public:
         }
 
         if (!vertex)
+        {
             std::cerr << "Drawing nullptr.\n";
+            return;
+        }
 
         m_VAO->Bind();
         m_VB->Bind();
@@ -167,7 +169,7 @@ public:
         m_VAO->AddBuffer(*m_VB, layout);
 
         unsigned int* index = new unsigned int[vertex_size];
-        for (int i = 0; i < vertex_size; ++i)
+        for (unsigned int i = 0; i < vertex_size; ++i)
         {
             index[i] = i;
         }
@@ -185,7 +187,10 @@ public:
         if (pArray)
             vertex = pArray;
         if (!vertex)
+        {
             std::cerr << "Drawing nullptr.\n";
+            return;
+        }
 
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));
@@ -222,7 +227,7 @@ public:
         m_VAO->AddBuffer(*m_VB, layout);
 
         unsigned int* index = new unsigned int[vertex_size];
-        for (int i = 0; i < vertex_size; ++i)
+        for (unsigned int i = 0; i < vertex_size; ++i)
         {
             index[i] = i;
         }
@@ -240,7 +245,10 @@ public:
         if (pArray)
             vertex = pArray;
         if (!vertex)
+        {
             std::cerr << "Drawing nullptr.\n";
+            return;
+        }
 
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertex_size, &(*vertex));

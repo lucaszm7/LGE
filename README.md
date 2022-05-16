@@ -89,8 +89,8 @@ int main(int argc, char** argv)
 - Finish Line and Polygon Modes
 - 2D Camera
 - 3D Camera
-- Abstract Shapes into:
-    - Renderer::DrawPoint...
+- Abstract `Shapes` and `Shader` into `Application`:
+    - In the Scene just call DrawSomething, who handle `Shader` and etc It's the own `Application`
 - LGE compile to static lib and it's linked in other projects
 
 
