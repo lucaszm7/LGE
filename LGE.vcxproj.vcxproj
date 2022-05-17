@@ -182,7 +182,6 @@
     <ClInclude Include="Dependencies\GLEW\include\GL\glew.h" />
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="src\core\Application.h" />
-    <ClInclude Include="src\core\GLCore.h" />
     <ClInclude Include="src\core\IndexBuffer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Shader.h" />

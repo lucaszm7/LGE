@@ -76,11 +76,13 @@ struct QuadTree
 class QuadTree_Scene : public LGE::Scene_t
 {
 private:
+    // Draws
     std::unique_ptr<Shader> m_Shader;
     std::unique_ptr<DrawPoint> m_DrawPoints;
     std::unique_ptr<DrawLine> m_DrawLines;
     glm::mat4 m_Proj;
 
+    // Algorithm
     std::vector<Point> m_Points;
     QuadTree *root;
 
@@ -134,6 +136,140 @@ public:
 
 };
 
+class Test_Zoom : public LGE::Scene_t
+{
+private:
+    // Draws
+    std::unique_ptr<Shader> m_Shader;
+    std::unique_ptr<DrawPoint> m_DrawPoints;
+    std::unique_ptr<DrawLine> m_DrawLines;
+    glm::mat4 m_Proj;
+
+    // Algorithm
+    std::vector<Point> m_Points;
+    float fOffsetX = 0.0f;
+    float fOffsetY = 0.0f;
+    
+    float fStartPanX = 0.0f;
+    float fStartPanY = 0.0f;
+
+    bool bHeld = false;
+
+protected:
+
+    void WorldToScreen(float fWorldX, float fWorldY, int& nScreenX, int& nScreenY)
+    {
+        nScreenX = (int)(fWorldX - fOffsetX);
+        nScreenY = (int)(fWorldY - fOffsetY);
+    }
+    
+    void ScreenToWorld(int nScreenX, int nScreenY, float &fWorldX, float &fWorldY)
+    {
+        fWorldX = (float)(nScreenX) + fOffsetX;
+        fWorldY = (float)(nScreenY) + fOffsetY;
+    }
+
+public:
+    Test_Zoom(int argc = 0, char** argv = nullptr)
+        : m_Proj(glm::ortho(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, -1.0f, 1.0f))
+    {
+        m_Shader = std::make_unique<Shader>("res/shaders/Basic_2D.shader");
+        m_Shader->Bind();
+
+        VertexBufferLayout* layout = new VertexBufferLayout();
+        layout->Push<float>(2);
+        m_DrawLines = std::make_unique<DrawLine>(nullptr, 1024, layout);
+        m_DrawPoints = std::make_unique<DrawPoint>();
+
+        fOffsetX = -(SCREEN_WIDTH / 2.0f);
+        fOffsetY = -(SCREEN_HEIGHT / 2.0f);
+
+         
+
+    }
+
+    ~Test_Zoom()
+    {
+        m_Shader->Unbind();
+    }
+
+    void OnUpdate(float deltaTime) override
+    {
+
+        double fMouseX, fMouseY;
+        LGE::GetCursorPos(fMouseX, fMouseY);
+
+        if ((LGE::GetMouseButton() == GLFW_PRESS) && !bHeld)
+        {
+            bHeld = true;
+            fStartPanX = fMouseX;
+            fStartPanY = fMouseY;
+        }
+
+        if (bHeld)
+        {
+            fOffsetX -= (fMouseX - fStartPanX);
+            fOffsetY -= (fMouseY - fStartPanY);
+
+            fStartPanX = fMouseX;
+            fStartPanY = fMouseY;
+        }
+
+        if ((LGE::GetMouseButton() == GLFW_RELEASE) && bHeld)
+        {
+            bHeld = false;
+            fOffsetX -= (fMouseX - fStartPanX);
+            fOffsetY -= (fMouseY - fStartPanY);
+        }
+
+
+        m_Points.clear();
+        // Draw 10 Horizontal Lines
+        for (float y = 0.0f; y < 100.0f; y++)
+        {
+            float sx = 0.0f, sy = y;
+            float ex = 100.0f, ey = y;
+
+            int pixel_sx, pixel_sy, pixel_ex, pixel_ey;
+
+            WorldToScreen(sx, sy, pixel_sx, pixel_sy);
+            WorldToScreen(ex, ey, pixel_ex, pixel_ey);
+
+            m_Points.emplace_back(pixel_sx, pixel_sy);
+            m_Points.emplace_back(pixel_ex, pixel_ey);
+        }
+        
+        // Draw 10 Vertical Lines
+        for (float x = 0.0f; x < 100.0f; x++)
+        {
+            float sx = x, sy = 0.0f;
+            float ex = x, ey = 100.0f;
+
+            int pixel_sx, pixel_sy, pixel_ex, pixel_ey;
+
+            WorldToScreen(sx, sy, pixel_sx, pixel_sy);
+            WorldToScreen(ex, ey, pixel_ex, pixel_ey);
+
+            m_Points.emplace_back(pixel_sx, pixel_sy);
+            m_Points.emplace_back(pixel_ex, pixel_ey);
+        }
+    }
+
+    void OnRender() override
+    {
+        m_Shader->SetUniformMat4f("u_MVP", m_Proj);
+        m_DrawLines->Draw(&m_Points[0], m_Points.size());
+        // m_DrawLines->Draw();
+    }
+
+    void OnImGuiRender() override
+    {
+
+    }
+
+};
+
+
 int main(int argc, char** argv)
 {
     LGE::Application Demo;
@@ -143,6 +279,7 @@ int main(int argc, char** argv)
     Demo.RegisterScene<PolygonTest>("Polygon Test");
     Demo.RegisterScene<ConvexHull>("ConvexHull");
     Demo.RegisterScene<QuadTree_Scene>("QuadTree");
+    Demo.RegisterScene<Test_Zoom>("Test Zooming");
 
     Demo.Run();
 

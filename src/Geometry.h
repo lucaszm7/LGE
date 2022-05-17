@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 
-#include "GLCore.h"
+#include "Renderer.h"
 
 
 
@@ -18,6 +18,11 @@ struct Point
         :x(v.x), y(v.y) {}
     Point(float x, float y)
         :x(x), y(y) {}
+};
+
+struct Line
+{
+    Point s, e;
 };
 
 struct Vertex
@@ -108,7 +113,6 @@ public:
         radius = r;
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(dta, sizeof(Vertex) * dta_size, GL_DYNAMIC_DRAW);
         if (layout)
             m_Layout = layout;
         else
@@ -117,6 +121,7 @@ public:
             m_Layout->Push<float>(2);
             m_Layout->Push<float>(4);
         }
+        m_VB = std::make_unique<VertexBuffer>(dta, m_Layout->GetStride() * dta_size, GL_DYNAMIC_DRAW);
         m_VAO->AddBuffer(*m_VB, *m_Layout);
 
         m_Index.resize(dta_size);
@@ -154,17 +159,13 @@ public:
         }
 
         if (!dta)
-        {
-            std::cerr << "Drawing nullptr.\n";
             return;
-        }
 
         m_VAO->Bind();
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_size, dta);
         m_IB->Bind();
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * dta_size, &(m_Index[0]));
-        m_VAO->Bind();
         glEnable(GL_POINT_SMOOTH);
         glPointSize(radius);
         glDrawElements(GL_POINTS, dta_size, GL_UNSIGNED_INT, nullptr);
@@ -202,7 +203,6 @@ public:
         dta_size = v_size;
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(dta, sizeof(Vertex) * dta_size, GL_DYNAMIC_DRAW);
         if (layout)
             m_Layout = layout;
         else
@@ -211,6 +211,7 @@ public:
             m_Layout->Push<float>(2);
             m_Layout->Push<float>(4);
         }
+        m_VB = std::make_unique<VertexBuffer>(dta, m_Layout->GetStride() * dta_size, GL_DYNAMIC_DRAW);
         m_VAO->AddBuffer(*m_VB, *m_Layout);
 
         m_Index.resize(dta_size);
@@ -241,25 +242,22 @@ public:
                 m_IB = std::make_unique<IndexBuffer>(&m_Index[0], m_Index.size());
 
                 m_VB.release();
-                m_VB = std::make_unique<VertexBuffer>(dta, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
+                m_VB = std::make_unique<VertexBuffer>(dta, m_Layout->GetStride() * v_size, GL_DYNAMIC_DRAW);
                 m_VAO->AddBuffer(*m_VB, *m_Layout);
             }
             dta_size = v_size;
         }
 
         if (!dta)
-        {
-            std::cerr << "Drawing nullptr.\n";
             return;
-        }
 
         m_VAO->Bind();
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_size, dta);
         m_IB->Bind();
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * dta_size, &(m_Index[0]));
-        m_VAO->Bind();
-        glDrawElements(static_cast<GLenum>(type), m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(static_cast<GLenum>(type), dta_size, GL_UNSIGNED_INT, nullptr);
+        dta = nullptr;
     }
 };
 

@@ -28,6 +28,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         std::cout << "Equals Pressed!\n";
     }
 
+    if (key == GLFW_KEY_F && action == GLFW_RELEASE)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    
+    if (key == GLFW_KEY_G && action == GLFW_RELEASE)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -35,16 +45,36 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void Renderer::Init(GLFWwindow*& window)
+namespace LGE
 {
-    window = Renderer::SetupGLFW();
-    Renderer::SetupGLEW();
-    Renderer::SetupImGui(window);
+    GLFWwindow* window;
+    int GetKey(int key) // GLFW_KEY_E
+    {
+        return glfwGetKey(LGE::window, key);
+    }
+
+    void GetCursorPos(double& xpos, double& ypos)
+    {
+        glfwGetCursorPos(LGE::window, &xpos, &ypos);
+    }
+
+    int GetMouseButton(int mouseButton)
+    {
+        return glfwGetMouseButton(window, mouseButton);
+    }
 }
 
-int Renderer::WindowShouldClose(GLFWwindow* window)
+
+void Renderer::Init()
 {
-    return glfwWindowShouldClose(window);
+    LGE::window = Renderer::SetupGLFW();
+    Renderer::SetupGLEW();
+    Renderer::SetupImGui();
+}
+
+int Renderer::WindowShouldClose()
+{
+    return glfwWindowShouldClose(LGE::window);
 }
 
 void Renderer::Clear()
@@ -70,7 +100,7 @@ void Renderer::Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader&
     Setup ImGui Stuff
     Including: Docking, Font size, DarkMode, OpenGL, GLFW
 */
-void Renderer::SetupImGui(GLFWwindow* window)
+void Renderer::SetupImGui()
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -85,7 +115,7 @@ void Renderer::SetupImGui(GLFWwindow* window)
     //io.ConfigViewportsNoTaskBarIcon = true;
     
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(LGE::window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
     // Setup Dear ImGui style
@@ -108,10 +138,10 @@ void Renderer::UpdateImGui()
     ImGui::RenderPlatformWindowsDefault();
 }
 
-void Renderer::UpdateGLFW(GLFWwindow* window)
+void Renderer::UpdateGLFW()
 {
-    glfwMakeContextCurrent(window);
-    glfwSwapBuffers(window);
+    glfwMakeContextCurrent(LGE::window);
+    glfwSwapBuffers(LGE::window);
     glfwPollEvents();
 }
 
@@ -123,9 +153,9 @@ void Renderer::CleanUpImGui()
     ImGui::DestroyContext();
 }
 
-void Renderer::CleanUpGLFW(GLFWwindow* window)
+void Renderer::CleanUpGLFW()
 {
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(LGE::window);
     glfwTerminate();
 }
 
@@ -153,7 +183,13 @@ GLFWwindow* Renderer::SetupGLFW()
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+    // int state = glfwGetKey(window, GLFW_KEY_E);
+    // glfwGetCursorPos(window, &xpos, &ypos);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
+
+
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;

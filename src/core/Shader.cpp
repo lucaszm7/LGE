@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 
-#include "Renderer.h"
+#include <GL/glew.h>
 #include "Shader.h"
 
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include <GL/glew.h>
 
 // Create a vertex buffer in the GPU MEM, pass the data in and Binded
 class VertexBuffer

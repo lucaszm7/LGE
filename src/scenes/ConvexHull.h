@@ -8,7 +8,6 @@
 #include <ctime>
 #include <algorithm>
 
-#include "GLCore.h"
 #include "Geometry.h"
 #include "Scene.h"
 
@@ -103,7 +102,7 @@ public:
 
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
         m_DrawLines->type = LineType::LOOP;
-        m_DrawLines->Draw();
+        m_DrawLines->Draw(&m_PointsOut[0], m_PointsOut.size());
 
         m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
         m_DrawPoints->Draw(&m_PointsOut[0], m_PointsOut.size());

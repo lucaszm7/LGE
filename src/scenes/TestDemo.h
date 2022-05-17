@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scene.h"
-#include "GLCore.h"
+#include "Renderer.h"
 
 namespace LGE
 {

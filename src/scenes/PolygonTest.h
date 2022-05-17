@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-#include "GLCore.h"
 #include "Geometry.h"
 
 class PolygonTest : public LGE::Scene_t
@@ -62,13 +61,13 @@ public:
 
         m_Shader->SetUniform1i("u_color", 1);
         m_Shader->SetUniform4f("u_Color", 0.0f, 1.0f, 1.0f, 1.0f);
-        m_SPolygon->Draw();
+        m_SPolygon->Draw(&m_Points2D[0]);
         m_Shader->SetUniform1i("u_color", 0);
 
-        m_DrawPoints->Draw();
+        m_DrawPoints->Draw(&m_Points2D[0], m_Points2D.size());
         m_Shader->SetUniform1i("u_color", 1);
         m_Shader->SetUniform4f("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
-        m_DrawLines->Draw();
+        m_DrawLines->Draw(&m_Points2D[0], m_Points2D.size());
         m_Shader->SetUniform1i("u_color", 0);
 
     }

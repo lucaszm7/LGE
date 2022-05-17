@@ -1,7 +1,6 @@
 #pragma once
 
 // Draw Stuff
-#include "GLCore.h"
 #include "Geometry.h"
 #include "Scene.h"
 
@@ -10,17 +9,17 @@
 
 namespace LGE
 {
+
     class Application
     {
     private:
-        Renderer renderer;
         LGE::Menu* m_MainMenu;
         LGE::Scene_t* m_CurrentApp;
 
     public:
         Application()
         {
-            Renderer::Init(renderer.Window);
+            Renderer::Init();
             m_CurrentApp = nullptr;
             m_MainMenu = new LGE::Menu(m_CurrentApp);
             m_CurrentApp = m_MainMenu;
@@ -38,7 +37,7 @@ namespace LGE
         void Run()
         {
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
-            while (!Renderer::WindowShouldClose(renderer.Window))
+            while (!Renderer::WindowShouldClose())
             {
                 Renderer::Clear();
                 Renderer::CreateImGuiFrame();
@@ -58,11 +57,11 @@ namespace LGE
                 /* Render Ends */
 
                 Renderer::UpdateImGui();
-                Renderer::UpdateGLFW(renderer.Window);
+                Renderer::UpdateGLFW();
             }
 
             Renderer::CleanUpImGui();
-            Renderer::CleanUpGLFW(renderer.Window);
+            Renderer::CleanUpGLFW();
         }
 
     };

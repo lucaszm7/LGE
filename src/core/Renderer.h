@@ -2,16 +2,18 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define ASSERT() __debugbreak();
 
 #define SCREEN_WIDTH 960.0f
 #define SCREEN_HEIGHT 540.0f
 
-class VertexArray;
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -23,22 +25,30 @@ DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+namespace LGE
+{
+    int GetKey(int key); // GLFW_KEY_E
+    void GetCursorPos(double& xpos, double& ypos);
+    int GetMouseButton(int mouseButton = GLFW_MOUSE_BUTTON_LEFT);
+}
+
+
+
 class Renderer
 {
 public:
-    GLFWwindow* Window;
 public:
-    static void Init(GLFWwindow*& window);
-    static int WindowShouldClose(GLFWwindow* window);
+    static void Init();
+    static int WindowShouldClose();
     static void Clear();
     static void ClearColor(float v0, float v1, float v2, float v3);
     static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);
     static GLFWwindow* SetupGLFW();
     static void SetupGLEW();
-    static void SetupImGui(GLFWwindow* window);
+    static void SetupImGui();
     static void CreateImGuiFrame();
     static void UpdateImGui();
-    static void UpdateGLFW(GLFWwindow* window);
+    static void UpdateGLFW();
     static void CleanUpImGui();
-    static void CleanUpGLFW(GLFWwindow* window);
+    static void CleanUpGLFW();
 };
