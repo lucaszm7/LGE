@@ -185,11 +185,7 @@
     <ClInclude Include="src\core\IndexBuffer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Shader.h" />
-    <ClInclude Include="src\scenes\ConvexHull.h" />
-    <ClInclude Include="src\scenes\PolygonTest.h" />
     <ClInclude Include="src\scenes\Scene.h" />
-    <ClInclude Include="src\scenes\TestClearColor.h" />
-    <ClInclude Include="src\scenes\TestDemo.h" />
     <ClInclude Include="src\core\Texture.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\utility\utils.h" />

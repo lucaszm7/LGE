@@ -1,20 +1,44 @@
 #pragma once
 
 // Draw Stuff
+#include <GL/glew.h>
 #include "Geometry.h"
 #include "Scene.h"
 
 // Utility
 #include "utility/utils.h"
 
+
+
+// Queue
+std::vector<Vertex> PointsQueue;
+std::vector<Vertex> LinesQueue;
+
+void DrawPoint(float x, float y, float r, Color c = { 1.0f, 0.0f, 0.0f, 1.0f })
+{
+    PointsQueue.emplace_back(x, y, c);
+}
+
+void DrawLine(float sx, float sy, float ex, float ey, Color c = { 1.0f, 0.0f, 0.0f, 1.0f })
+{
+    LinesQueue.emplace_back(sx, sy, c);
+    LinesQueue.emplace_back(ex, ey, c);
+}
+
 namespace LGE
 {
+
 
     class Application
     {
     private:
         LGE::Menu* m_MainMenu;
         LGE::Scene_t* m_CurrentApp;
+
+    public:
+        // Drawers
+        std::unique_ptr<Drawer> DrawerPoints;
+        std::unique_ptr<Drawer> DrawerLines;
 
     public:
         Application()
@@ -25,6 +49,8 @@ namespace LGE
             m_CurrentApp = m_MainMenu;
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 
+            DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+            DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
         }
 
         template <typename T>
@@ -51,6 +77,19 @@ namespace LGE
                     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
                 }
                 m_CurrentApp->OnUpdate(0.0f);
+
+                // Draw Primitives
+                if (LinesQueue.size() > 0)
+                {
+                    DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
+                    LinesQueue.clear();
+                }
+                if (PointsQueue.size() > 0)
+                {
+                    DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
+                    PointsQueue.clear();
+                }
+
                 m_CurrentApp->OnRender();
                 m_CurrentApp->OnImGuiRender();
                 ImGui::End();

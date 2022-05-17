@@ -11,7 +11,7 @@ DebugCallBack(GLenum source, GLenum type, GLuint id, GLenum severity,
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_E && action == GLFW_RELEASE)
+    if (key == GLFW_KEY_ENTER && action == GLFW_RELEASE)
     {
         // Pick the main monitor
         GLFWmonitor* fullScreenMonitor = glfwGetPrimaryMonitor();
@@ -21,11 +21,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             glfwSetWindowMonitor(window, fullScreenMonitor, 0, 0, fullScreenMode->width, fullScreenMode->height, fullScreenMode->refreshRate);
         else
             glfwSetWindowMonitor(window, NULL, 200, 200, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT, fullScreenMode->refreshRate);
-    }
-
-    if (key == GLFW_KEY_EQUAL && action == GLFW_RELEASE)
-    {
-        std::cout << "Equals Pressed!\n";
     }
 
     if (key == GLFW_KEY_F && action == GLFW_RELEASE)

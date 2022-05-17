@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+/*
+
 // Example Scenes
 #include "TestDemo.h"
 #include "TestClearColor.h"
@@ -136,37 +138,48 @@ public:
 
 };
 
+*/
+
 class Test_Zoom : public LGE::Scene_t
 {
 private:
     // Draws
     std::unique_ptr<Shader> m_Shader;
-    std::unique_ptr<DrawPoint> m_DrawPoints;
-    std::unique_ptr<DrawLine> m_DrawLines;
     glm::mat4 m_Proj;
 
-    // Algorithm
-    std::vector<Point> m_Points;
+
+    // ===== Algorithm =====
+
+    // World Offset Offset
     float fOffsetX = 0.0f;
     float fOffsetY = 0.0f;
     
+    // Difference for mouse picking
     float fStartPanX = 0.0f;
     float fStartPanY = 0.0f;
 
+    float fScaleX = 1.0f;
+    float fScaleY = 1.0f;
+
+    float fSelecX = 0.0f;
+    float fSelecY = 0.0f;
+
+
     bool bHeld = false;
+    bool bHeld_1 = false;
 
 protected:
 
     void WorldToScreen(float fWorldX, float fWorldY, int& nScreenX, int& nScreenY)
     {
-        nScreenX = (int)(fWorldX - fOffsetX);
-        nScreenY = (int)(fWorldY - fOffsetY);
+        nScreenX = (int)((fWorldX - fOffsetX) * fScaleX);
+        nScreenY = (int)((fWorldY - fOffsetY) * fScaleY);
     }
     
     void ScreenToWorld(int nScreenX, int nScreenY, float &fWorldX, float &fWorldY)
     {
-        fWorldX = (float)(nScreenX) + fOffsetX;
-        fWorldY = (float)(nScreenY) + fOffsetY;
+        fWorldX = (float)(nScreenX) / fScaleX + fOffsetX;
+        fWorldY = (float)(nScreenY) / fScaleY + fOffsetY;
     }
 
 public:
@@ -176,21 +189,8 @@ public:
         m_Shader = std::make_unique<Shader>("res/shaders/Basic_2D.shader");
         m_Shader->Bind();
 
-        VertexBufferLayout* layout = new VertexBufferLayout();
-        layout->Push<float>(2);
-        m_DrawLines = std::make_unique<DrawLine>(nullptr, 1024, layout);
-        m_DrawPoints = std::make_unique<DrawPoint>();
-
         fOffsetX = -(SCREEN_WIDTH / 2.0f);
         fOffsetY = -(SCREEN_HEIGHT / 2.0f);
-
-         
-
-    }
-
-    ~Test_Zoom()
-    {
-        m_Shader->Unbind();
     }
 
     void OnUpdate(float deltaTime) override
@@ -208,8 +208,8 @@ public:
 
         if (bHeld)
         {
-            fOffsetX -= (fMouseX - fStartPanX);
-            fOffsetY -= (fMouseY - fStartPanY);
+            fOffsetX -= (fMouseX - fStartPanX) / fScaleX;
+            fOffsetY -= (fMouseY - fStartPanY) / fScaleY;
 
             fStartPanX = fMouseX;
             fStartPanY = fMouseY;
@@ -218,14 +218,47 @@ public:
         if ((LGE::GetMouseButton() == GLFW_RELEASE) && bHeld)
         {
             bHeld = false;
-            fOffsetX -= (fMouseX - fStartPanX);
-            fOffsetY -= (fMouseY - fStartPanY);
+            fOffsetX -= (fMouseX - fStartPanX) / fScaleX;
+            fOffsetY -= (fMouseY - fStartPanY) / fScaleY;
+        }
+
+        float fMouseWorldX_BeforeZoom, fMouseWorldY_BeforeZoom;
+        // Now I have the world position of my mouse
+        ScreenToWorld(fMouseX, fMouseY, fMouseWorldX_BeforeZoom, fMouseWorldY_BeforeZoom);
+
+        // Zooming with Q and E
+        if (LGE::GetKey(GLFW_KEY_Q) == GLFW_PRESS)
+        {
+            fScaleX *= 1.003f;
+            fScaleY *= 1.003f;
+
+        }
+        
+        if (LGE::GetKey(GLFW_KEY_E) == GLFW_PRESS)
+        {
+            fScaleX *= 0.997f;
+            fScaleY *= 0.997f;
+
+        }
+
+        float fMouseWorldX_AfterZoom, fMouseWorldY_AfterZoom;
+        ScreenToWorld(fMouseX, fMouseY, fMouseWorldX_AfterZoom, fMouseWorldY_AfterZoom);
+        fOffsetX += (fMouseWorldX_BeforeZoom - fMouseWorldX_AfterZoom);
+        fOffsetY += (fMouseWorldY_BeforeZoom - fMouseWorldY_AfterZoom);
+
+        if ((LGE::GetMouseButton(1) == GLFW_PRESS) && !bHeld_1)
+            bHeld_1 = true;
+
+        if ((LGE::GetMouseButton(1) == GLFW_RELEASE) && bHeld_1)
+        {
+            bHeld_1 = false;
+            fSelecX = fMouseWorldX_AfterZoom;
+            fSelecY = fMouseWorldY_AfterZoom;
         }
 
 
-        m_Points.clear();
         // Draw 10 Horizontal Lines
-        for (float y = 0.0f; y < 100.0f; y++)
+        for (float y = 0.0f; y <= 100.0f; y+=10.0f)
         {
             float sx = 0.0f, sy = y;
             float ex = 100.0f, ey = y;
@@ -235,12 +268,11 @@ public:
             WorldToScreen(sx, sy, pixel_sx, pixel_sy);
             WorldToScreen(ex, ey, pixel_ex, pixel_ey);
 
-            m_Points.emplace_back(pixel_sx, pixel_sy);
-            m_Points.emplace_back(pixel_ex, pixel_ey);
+            DrawLine(pixel_sx, pixel_sy, pixel_ex, pixel_ey, Color{ 0.0f, 1.0f, 0.0f, 1.0f });
         }
         
         // Draw 10 Vertical Lines
-        for (float x = 0.0f; x < 100.0f; x++)
+        for (float x = 0.0f; x <= 100.0f; x+=10.0f)
         {
             float sx = x, sy = 0.0f;
             float ex = x, ey = 100.0f;
@@ -250,16 +282,22 @@ public:
             WorldToScreen(sx, sy, pixel_sx, pixel_sy);
             WorldToScreen(ex, ey, pixel_ex, pixel_ey);
 
-            m_Points.emplace_back(pixel_sx, pixel_sy);
-            m_Points.emplace_back(pixel_ex, pixel_ey);
+            DrawLine(pixel_sx, pixel_sy, pixel_ex, pixel_ey, Color{ 0.0f, 0.0f, 1.0f, 1.0f });
         }
+
+        if ((LGE::GetMouseButton(1) == GLFW_PRESS) && !bHeld_1)
+        {
+            bHeld_1 = true;
+        }
+        
+        int cx, cy; // cr;
+        WorldToScreen(fSelecX, fSelecY, cx, cy);
+        DrawPoint(cx, cy, 50.0f, Color{ 1.0f, 1.0f, 0.0f, 1.0f} );
     }
 
     void OnRender() override
     {
         m_Shader->SetUniformMat4f("u_MVP", m_Proj);
-        m_DrawLines->Draw(&m_Points[0], m_Points.size());
-        // m_DrawLines->Draw();
     }
 
     void OnImGuiRender() override
@@ -267,21 +305,29 @@ public:
 
     }
 
+    ~Test_Zoom()
+    {
+        m_Shader->Unbind();
+    }
+
 };
 
 
 int main(int argc, char** argv)
 {
-    LGE::Application Demo;
+    LGE::Application* Demo;
+    Demo = new LGE::Application();
 
-    Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");
+    /*Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");
     Demo.RegisterScene<LGE::TestDemo>("Texture Test");
     Demo.RegisterScene<PolygonTest>("Polygon Test");
     Demo.RegisterScene<ConvexHull>("ConvexHull");
-    Demo.RegisterScene<QuadTree_Scene>("QuadTree");
-    Demo.RegisterScene<Test_Zoom>("Test Zooming");
+    Demo.RegisterScene<QuadTree_Scene>("QuadTree");*/
+    Demo->RegisterScene<Test_Zoom>("Test Zooming");
 
-    Demo.Run();
+    Demo->Run();
+
+    delete Demo;
 
     return 0;
 }

@@ -8,7 +8,6 @@
 #include "Renderer.h"
 
 
-
 using Color = glm::vec4;
 
 struct Point
@@ -61,6 +60,13 @@ struct Vertex
         Position = p;
         Color = c;
     }
+
+    Vertex(float x, float y, glm::vec4 c)
+    {
+        glm::vec2 p(x, y);
+        Position = p;
+        Color = c;
+    }
     
     Vertex(Point p, glm::vec4 c)
     {
@@ -82,19 +88,26 @@ inline std::ostream& operator << (std::ostream& out, const Vertex& v)
     return out;
 }
 
-
 // Abstract Class
-struct Shape
+struct Primitive
 {
     virtual void Draw() {};
 };
 
-struct DrawPoint : Shape
+enum class SHAPE
+{
+    POINT = GL_POINTS,
+    LINE = GL_LINES,
+    LINE_STRIP = GL_LINE_STRIP,
+    LINE_LOOP = GL_LINE_LOOP
+};
+
+struct Drawer : Primitive
 {
 public:
     void* dta;
     size_t dta_size;
-    float radius;
+    SHAPE type;
 
 private:
     std::vector<unsigned int> m_Index;
@@ -106,11 +119,11 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    DrawPoint(void* pdta = nullptr, size_t v_size = 10, VertexBufferLayout *layout = nullptr, float r = 50)
+    Drawer(SHAPE t, size_t v_size = 10, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
         dta = pdta;
         dta_size = v_size;
-        radius = r;
+        type = t;
 
         m_VAO = std::make_unique<VertexArray>();
         if (layout)
@@ -132,7 +145,7 @@ public:
         m_IB = std::make_unique<IndexBuffer>(&m_Index[0], dta_size);
     }
 
-    ~DrawPoint()
+    ~Drawer()
     {
         m_VB->Unbind();
         m_VAO->Unbind();
@@ -166,12 +179,20 @@ public:
         glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_size, dta);
         m_IB->Bind();
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * dta_size, &(m_Index[0]));
-        glEnable(GL_POINT_SMOOTH);
-        glPointSize(radius);
-        glDrawElements(GL_POINTS, dta_size, GL_UNSIGNED_INT, nullptr);
+        
+        // Difference
+        if (static_cast<SHAPE>(type) == SHAPE::POINT)
+        {
+            glEnable(GL_POINT_SMOOTH);
+            glPointSize(50.0f);
+        }
+
+        // Type
+        glDrawElements(static_cast<GLenum>(type), dta_size, GL_UNSIGNED_INT, nullptr);
     }
 };
 
+/*
 // S = Shape
 enum class LineType
 {
@@ -490,3 +511,4 @@ public:
         glDrawElements(GL_POLYGON, m_IB->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 };
+*/
