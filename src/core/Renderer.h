@@ -7,8 +7,8 @@
 
 #define ASSERT() __debugbreak();
 
-#define SCREEN_WIDTH 960.0f
-#define SCREEN_HEIGHT 540.0f
+#define SCREEN_WIDTH 1280.0f
+#define SCREEN_HEIGHT 960.0f
 
 #include "VertexArray.h"
 #include "IndexBuffer.h"
