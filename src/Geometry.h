@@ -99,9 +99,11 @@ enum class SHAPE
     POINT = GL_POINTS,
     LINE = GL_LINES,
     LINE_STRIP = GL_LINE_STRIP,
-    LINE_LOOP = GL_LINE_LOOP
-};
+    LINE_LOOP = GL_LINE_LOOP,
+    RECT = GL_TRIANGLES,
 
+};
+float PointsRadius = 50.0f;
 struct Drawer : Primitive
 {
 public:
@@ -119,7 +121,15 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    Drawer(SHAPE t, size_t v_size = 10, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="t"></param>
+    /// <param name="v_size">How many Elements do you wan to draw? if > then buffer, buffer.resize()</param>
+    /// <param name="pdta"></param>
+    /// <param name="layout"></param>
+    /// <param name="r"></param>
+    Drawer(SHAPE t, size_t v_size = 12, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
         dta = pdta;
         dta_size = v_size;
@@ -137,10 +147,28 @@ public:
         m_VB = std::make_unique<VertexBuffer>(dta, m_Layout->GetStride() * dta_size, GL_DYNAMIC_DRAW);
         m_VAO->AddBuffer(*m_VB, *m_Layout);
 
-        m_Index.resize(dta_size);
-        for (unsigned int i = 0; i < dta_size; ++i)
+
+        if (static_cast<SHAPE>(type) == SHAPE::RECT)
         {
-            m_Index[i] = i;
+            m_Index.resize(v_size * (3.0f / 2.0f));
+            for (int i = 0; i < m_Index.size() * (2.0f / 3.0f); i += 4)
+            {
+                m_Index[(i + 0) + (i / 2)] = i + 0;
+                m_Index[(i + 1) + (i / 2)] = i + 1;
+                m_Index[(i + 2) + (i / 2)] = i + 2;
+                                    
+                m_Index[(i + 3) + (i / 2)] = i + 0;
+                m_Index[(i + 4) + (i / 2)] = i + 2;
+                m_Index[(i + 5) + (i / 2)] = i + 3;
+            }
+        }
+
+        else {
+            m_Index.resize(dta_size);
+            for (unsigned int i = 0; i < dta_size; ++i)
+            {
+                m_Index[i] = i;
+            }
         }
         m_IB = std::make_unique<IndexBuffer>(&m_Index[0], dta_size);
     }
@@ -156,14 +184,31 @@ public:
         if (pdta && v_size != 0)
         {
             dta = pdta;
-            if (v_size > m_Index.size())
+            if (v_size > m_Index.size() * (2.0f / 3.0f))
             {
-                m_Index.resize(v_size);
-                for (unsigned int i = 0; i < v_size; ++i)
-                    m_Index[i] = i;
+                if (static_cast<SHAPE>(type) == SHAPE::RECT)
+                {
+                    m_Index.resize(v_size * (3.0f / 2.0f));
+                    for (int i = 0; i < m_Index.size() * (2.0f / 3.0f); i += 4)
+                    {
+                        m_Index[(i + 0) + (i / 2)] = i + 0;
+                        m_Index[(i + 1) + (i / 2)] = i + 1;
+                        m_Index[(i + 2) + (i / 2)] = i + 2;
+
+                        m_Index[(i + 3) + (i / 2)] = i + 0;
+                        m_Index[(i + 4) + (i / 2)] = i + 2;
+                        m_Index[(i + 5) + (i / 2)] = i + 3;
+                    }
+                }
+                else
+                {
+                    m_Index.resize(v_size);
+                    for (unsigned int i = 0; i < v_size; ++i)
+                        m_Index[i] = i;
+                }
+
                 m_IB.release();
                 m_IB = std::make_unique<IndexBuffer>(&m_Index[0], m_Index.size());
-
                 m_VB.release();
                 m_VB = std::make_unique<VertexBuffer>(dta, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
                 m_VAO->AddBuffer(*m_VB, *m_Layout);
@@ -174,9 +219,12 @@ public:
         if (!dta)
             return;
 
+
         m_VAO->Bind();
         m_VB->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_size, dta);
+        if (static_cast<SHAPE>(type) == SHAPE::RECT)
+            dta_size *= (3.0f / 2.0f);
         m_IB->Bind();
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * dta_size, &(m_Index[0]));
         
@@ -184,7 +232,7 @@ public:
         if (static_cast<SHAPE>(type) == SHAPE::POINT)
         {
             glEnable(GL_POINT_SMOOTH);
-            glPointSize(50.0f);
+            glPointSize(PointsRadius);
         }
 
         // Type
