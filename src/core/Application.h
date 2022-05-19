@@ -36,6 +36,14 @@ void DrawRect(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 1.0f, 0
     RectQueue.emplace_back(vPos.x, vPos.y + vSize.y, c);
 }
 
+void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 0.0f, 0.0f, 0.0f, 1.0f })
+{
+    LinesQueue.emplace_back(vPos.x, vPos.y, c);
+    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y, c);
+    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
+    LinesQueue.emplace_back(vPos.x, vPos.y + vSize.y, c);
+}
+
 namespace LGE
 {
     class TransformedView
@@ -221,14 +229,16 @@ namespace LGE
                     PointsQueue.shrink_to_fit();
                     RectQueue.shrink_to_fit();
                     
-                    DrawerPoints.release();
-                    DrawerLines.release();
-                    DrawerRects.release();
+                    DrawerPoints.reset();
+                    DrawerLines.reset();
+                    DrawerRects.reset();
                     
                     DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
                     DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
                     DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
                     
+                    m_Shader.reset();
+
                     delete m_CurrentApp;
                     
                     m_CurrentApp = m_MainMenu;

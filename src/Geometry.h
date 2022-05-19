@@ -202,9 +202,11 @@ public:
                     for (unsigned int i = 0; i < v_size; ++i)
                         m_Index[i] = i;
                 }
-                m_IB.release();
+                m_VAO.reset();
+                m_VAO = std::make_unique<VertexArray>();
+                m_IB.reset();
                 m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
-                m_VB.release();
+                m_VB.reset();
                 m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
                 m_VAO->AddBuffer(*m_VB, *m_Layout);
             }

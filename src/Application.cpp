@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <list>
 
 struct rect
 {
@@ -36,7 +37,7 @@ struct rect
 };
 
 
-constexpr size_t MAX_DEPTH = 12;
+constexpr size_t MAX_DEPTH = 8;
 
 template <typename OBJECT_TYPE>
 class StaticQuadTree
@@ -44,7 +45,7 @@ class StaticQuadTree
 
 protected:
 
-    size_t m_Depth;
+    size_t m_Depth = 0;
 
     // This QuadTree
     rect m_Rect;
@@ -126,6 +127,7 @@ public:
     std::list<OBJECT_TYPE> search(rect& rArea) const
     {
         std::list<OBJECT_TYPE> listItems;
+        listItems.resize(10);
         search(rArea, listItems);
         return listItems;
     }
@@ -140,6 +142,7 @@ public:
         }
 
         // Second we recursivily iterate for the childrens
+        #pragma unroll
         for (int i = 0; i < 4; ++i)
         {
             if (m_pChild[i])
