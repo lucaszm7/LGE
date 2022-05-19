@@ -35,6 +35,9 @@ struct Vertex
         Color = { 1.0f, 0.0f, 0.0f, 1.0f };
     }
 
+    Vertex(const Vertex& a)
+        : Position(a.Position), Color(a.Color) {}
+
     Vertex(float x, float y)
     {
         glm::vec2 p(x, y);
@@ -121,14 +124,6 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="t"></param>
-    /// <param name="v_size">How many Elements do you wan to draw? if > then buffer, buffer.resize()</param>
-    /// <param name="pdta"></param>
-    /// <param name="layout"></param>
-    /// <param name="r"></param>
     Drawer(SHAPE t, size_t v_size = 12, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
         dta = pdta;
@@ -170,12 +165,13 @@ public:
                 m_Index[i] = i;
             }
         }
-        m_IB = std::make_unique<IndexBuffer>(&m_Index[0], dta_size);
+        m_IB = std::make_unique<IndexBuffer>(nullptr, dta_size);
     }
 
     ~Drawer()
     {
         m_VB->Unbind();
+        m_IB->Unbind();
         m_VAO->Unbind();
     }
 
@@ -206,11 +202,10 @@ public:
                     for (unsigned int i = 0; i < v_size; ++i)
                         m_Index[i] = i;
                 }
-
                 m_IB.release();
-                m_IB = std::make_unique<IndexBuffer>(&m_Index[0], m_Index.size());
+                m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
                 m_VB.release();
-                m_VB = std::make_unique<VertexBuffer>(dta, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
+                m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
                 m_VAO->AddBuffer(*m_VB, *m_Layout);
             }
             dta_size = v_size;
