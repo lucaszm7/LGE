@@ -50,6 +50,9 @@ protected:
 
     float fArea = 100000.0f;
 
+    double msDrawingTime;
+    unsigned int drawCalls;
+
 public:
     StaticQuadTree()
     {
@@ -82,13 +85,23 @@ public:
 
         rect rScreen = { vWorldTL, vWorldBR - vWorldTL };
 
-        for (const auto& obj : vecObjects)
+        // Linear
         {
-            if (rScreen.overlaps({ obj.vPos, obj.vSize }))
+            LGE::Timer time;
+            unsigned int calls = 0;
+            for (const auto& obj : vecObjects)
             {
-                DrawRect(obj.vPos, obj.vSize, obj.col);
+                if (rScreen.overlaps({ obj.vPos, obj.vSize }))
+                {
+                    calls++;
+                    DrawRect(obj.vPos, obj.vSize, obj.col);
+                }
             }
+            drawCalls = calls;
+            msDrawingTime = time.now();
         }
+
+        
 
     }
 
@@ -99,7 +112,8 @@ public:
 
     void OnImGuiRender() override
     {
-
+        ImGui::Text("Took %.3f ms", msDrawingTime);
+        ImGui::Text("Draw Calls: %.3u", drawCalls);
     }
 
     ~StaticQuadTree()
@@ -112,13 +126,14 @@ int main(int argc, char** argv)
 {
     LGE::Application Demo;
     Demo.RegisterScene<StaticQuadTree>("Static Quad Tree");
-    Demo.Run();
+    Demo.Run ();
 
     /*Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");
     Demo.RegisterScene<LGE::TestDemo>("Texture Test");
     Demo.RegisterScene<PolygonTest>("Polygon Test");
     Demo.RegisterScene<ConvexHull>("ConvexHull");
     Demo.RegisterScene<QuadTree_Scene>("QuadTree");*/
+
 
     return 0;
 }
