@@ -9,7 +9,7 @@ private:
 	unsigned int m_RendererID;
 	unsigned int m_Count;
 public:
-	IndexBuffer(const unsigned int* data, unsigned int count, GLenum mode = GL_STATIC_DRAW);
+	IndexBuffer(const unsigned int* data, unsigned int count, GLenum mode = GL_DYNAMIC_DRAW);
 	~IndexBuffer();
 
 	void Bind() const;
