@@ -5,6 +5,10 @@ It's a simple graphical library, written in C++ with OpenGL(GLEW) and GLFW
 Start as a fork from my other project named "OpenGL", it grow up when I needed for my class 
 "Geometrical Algorithms", and then I decided created this library
 
+## Bugs && Ideias
+
+- Leak memory probably comming from `m_VAO` from `Grometry.h`
+
 ## Implementation
 
 Provides an abstraction for creating windows, GUI, and render uneder LGE namespace.
