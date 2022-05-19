@@ -11,18 +11,18 @@
 
 
 // Queue
-std::vector<Vertex> PointsQueue;
-std::vector<Vertex> LinesQueue;
-std::vector<Vertex> RectQueue;
+static std::vector<Vertex> PointsQueue;
+static std::vector<Vertex> LinesQueue;
+static std::vector<Vertex> RectQueue;
 
 
-void DrawPoint(float x, float y, float r = 50.0f, Color c = { 1.0f, 0.0f, 0.0f, 1.0f })
+void DrawPoint(float x, float y, float r = 50.0f, const Color& c = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
     PointsQueue.emplace_back(x, y, c);
     PointsRadius = r;
 }
 
-void DrawLine(float sx, float sy, float ex, float ey, Color c = { 1.0f, 0.0f, 0.0f, 1.0f })
+void DrawLine(float sx, float sy, float ex, float ey, const Color& c = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
     LinesQueue.emplace_back(sx, sy, c);
     LinesQueue.emplace_back(ex, ey, c);
@@ -213,6 +213,24 @@ namespace LGE
                 ImGui::Begin(m_MainMenu->c_SceneName.c_str());
                 if (m_CurrentApp != m_MainMenu && ImGui::Button("<- Main Menu"))
                 {
+                    LinesQueue.clear();
+                    PointsQueue.clear();
+                    RectQueue.clear();
+
+                    LinesQueue.shrink_to_fit();
+                    PointsQueue.shrink_to_fit();
+                    RectQueue.shrink_to_fit();
+                    
+                    DrawerPoints.release();
+                    DrawerLines.release();
+                    DrawerRects.release();
+                    
+                    DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+                    DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
+                    DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
+                    
+                    delete m_CurrentApp;
+                    
                     m_CurrentApp = m_MainMenu;
                     m_MainMenu->c_SceneName = "Main Menu";
                     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
