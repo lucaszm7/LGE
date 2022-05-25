@@ -237,7 +237,7 @@ namespace LGE
                     DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
                     DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
                     
-                    m_Shader.reset();
+                    // m_Shader.reset();
 
                     delete m_CurrentApp;
                     
