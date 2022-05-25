@@ -40,8 +40,12 @@ void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 0.
 {
     LinesQueue.emplace_back(vPos.x, vPos.y, c);
     LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y, c);
-    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
+    LinesQueue.emplace_back(vPos.x, vPos.y, c);
     LinesQueue.emplace_back(vPos.x, vPos.y + vSize.y, c);
+    LinesQueue.emplace_back(vPos.x, vPos.y + vSize.y, c);
+    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
+    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y, c);
+    LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
 }
 
 namespace LGE
