@@ -36,7 +36,7 @@ struct rect
 
 };
 
-constexpr size_t MAX_DEPTH = 8;
+constexpr size_t MAX_DEPTH = 16;
 
 template <typename OBJECT_TYPE>
 class StaticQuadTree
@@ -176,6 +176,18 @@ public:
     {
         return m_Rect;
     }
+
+    const void Draw() const
+    {
+        DrawRectEmpty(m_Rect.pos, m_Rect.size, Color(1.0f, 1.0f, 0.0f, 1.0f));
+        for (unsigned int i = 0; i < 4; ++i)
+        {
+            if (m_pChild[i])
+                m_pChild[i]->Draw();
+        }
+
+    }
+
 };
 
 
@@ -247,6 +259,11 @@ public:
         return listItemPointers;
     }
 
+    const void Draw() const
+    {
+        root.Draw();
+    }
+
 };
 
 
@@ -273,6 +290,7 @@ protected:
 
     bool bUseQuadTree = false;
     bool bHeld = false;
+    bool bAddRect = false;
 
 public:
     SceneStaticQuadTree()
@@ -300,6 +318,28 @@ public:
 
     void OnUpdate(float fElapsedTime) override
     {
+        treeObjects.Draw();
+
+        if (LGE::GetMouseButton(1) == GLFW_PRESS && !bAddRect)
+        {
+            bAddRect = true;
+        }
+
+        if (LGE::GetMouseButton(1) == GLFW_RELEASE && bAddRect)
+        {
+            SomeObjectWithArea obj;
+            double as, bs;
+            float aw, bw;
+            LGE::GetCursorPos(as, bs);
+            tv.ScreenToWorld(as, bs, aw, bw);
+            obj.vPos = { aw, bw };
+            obj.vSize = { LGE::rand(0.1f, 100.0f), LGE::rand(0.1f, 100.0f) };
+            obj.col = { LGE::rand(0.0f, 1.0f), LGE::rand(0.0f, 1.0f), LGE::rand(0.0f, 1.0f), 1.0f };
+            vecObjects.push_back(obj);
+            treeObjects.insert(obj, rect(obj.vPos, obj.vSize));
+
+            bAddRect = false;
+        }
 
         if (LGE::GetKey(GLFW_KEY_TAB) == GLFW_PRESS && !bHeld)
             bHeld = true;
@@ -321,6 +361,7 @@ public:
 
         rect rScreen = { vWorldTL, vWorldBR - vWorldTL };
 
+        // Using Quad-Trees
         if(bUseQuadTree)
         {
             LGE::Timer time;
