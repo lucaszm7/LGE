@@ -18,14 +18,19 @@ struct rect
 
     constexpr bool contains(const glm::vec2& p) const
     {
-        return !(p.x < pos.x || p.y < pos.y || p.x >= (pos.x + size.x) || p.y >= (pos.y + size.y));
+        return !(p.x < pos.x || 
+                 p.y < pos.y || 
+                 p.x >= (pos.x + size.x) || 
+                 p.y >= (pos.y + size.y));
     }
 
     // Fully contains another rect
     constexpr bool contains(const rect& r) const
     {
-        return (r.pos.x >= pos.x) && ((r.pos.x + r.size.x) < (pos.x + size.x)) &&
-            (r.pos.y >= pos.y) && ((r.pos.y + r.size.y) < (pos.y + size.y));
+        return (r.pos.x >= pos.x) && 
+               ((r.pos.x + r.size.x) < (pos.x + size.x)) &&
+               (r.pos.y >= pos.y) && 
+               ((r.pos.y + r.size.y) < (pos.y + size.y));
     }
 
     constexpr bool overlaps(const rect& r) const
@@ -36,7 +41,7 @@ struct rect
 
 };
 
-constexpr size_t MAX_DEPTH = 16;
+constexpr size_t MAX_DEPTH = 32;
 
 template <typename OBJECT_TYPE>
 class StaticQuadTree
@@ -53,7 +58,7 @@ protected:
     std::array<rect, 4> m_rChild{};
 
     // 4 Potential Children
-    std::array<std::shared_ptr<StaticQuadTree<OBJECT_TYPE>>, 4> m_pChild{};
+    std::array<std::shared_ptr<StaticQuadTree<OBJECT_TYPE>>, 4> m_pChild {};
 
     // Item Storage
     std::vector<std::pair<rect, OBJECT_TYPE>> m_pItems;
@@ -289,8 +294,13 @@ protected:
     unsigned int drawCalls = 0;
 
     bool bUseQuadTree = false;
+
     bool bViewQuadTree = true;
     bool bHeldViewQuadTree = false;
+
+    bool bViewRects = true;
+    bool bHeldViewRects = false;
+
     bool bHeld = false;
     bool bAddRect = false;
 
@@ -333,7 +343,7 @@ public:
             LGE::GetCursorPos(as, bs);
             tv.ScreenToWorld(as, bs, aw, bw);
             obj.vPos = { aw, bw };
-            obj.vSize = { LGE::rand(0.1f, 100.0f), LGE::rand(0.1f, 100.0f) };
+            obj.vSize = { 10.0f, 10.0f };
             obj.col = { LGE::rand(0.0f, 1.0f), LGE::rand(0.0f, 1.0f), LGE::rand(0.0f, 1.0f), 1.0f };
             vecObjects.push_back(obj);
             treeObjects.insert(obj, rect(obj.vPos, obj.vSize));
@@ -358,6 +368,15 @@ public:
             bHeldViewQuadTree = false;
             bViewQuadTree = !bViewQuadTree;
         }
+        
+        if (LGE::GetKey(GLFW_KEY_Z) == GLFW_PRESS && !bHeldViewRects)
+            bHeldViewRects = true;
+
+        if (LGE::GetKey(GLFW_KEY_Z) == GLFW_RELEASE && bHeldViewRects)
+        {
+            bHeldViewRects = false;
+            bViewRects = !bViewRects;
+        }
 
         float fWorldTLX, fWorldTLY;
         float fWorldBRX, fWorldBRY;
@@ -370,35 +389,38 @@ public:
 
         rect rScreen = { vWorldTL, vWorldBR - vWorldTL };
 
-        // Using Quad-Trees
-        if(bUseQuadTree)
+        if (bViewRects)
         {
-            LGE::Timer time;
-            unsigned int calls = 0;
-            for (const auto& obj : treeObjects.search(rScreen))
+            // Using Quad-Trees
+            if (bUseQuadTree)
             {
-                calls++;
-                DrawRect(obj->vPos, obj->vSize, obj->col);
-            }
-            drawCalls = calls;
-            msDrawingTime = time.now();
-        }
-
-        // Linear
-        else
-        {
-            LGE::Timer time;
-            unsigned int calls = 0;
-            for (const auto& obj : vecObjects)
-            {
-                if (rScreen.overlaps({ obj.vPos, obj.vSize }))
+                LGE::Timer time;
+                unsigned int calls = 0;
+                for (const auto& obj : treeObjects.search(rScreen))
                 {
                     calls++;
-                    DrawRect(obj.vPos, obj.vSize, obj.col);
+                    DrawRect(obj->vPos, obj->vSize, obj->col);
                 }
+                drawCalls = calls;
+                msDrawingTime = time.now();
             }
-            drawCalls = calls;
-            msDrawingTime = time.now();
+
+            // Linear
+            else
+            {
+                LGE::Timer time;
+                unsigned int calls = 0;
+                for (const auto& obj : vecObjects)
+                {
+                    if (rScreen.overlaps({ obj.vPos, obj.vSize }))
+                    {
+                        calls++;
+                        DrawRect(obj.vPos, obj.vSize, obj.col);
+                    }
+                }
+                drawCalls = calls;
+                msDrawingTime = time.now();
+            }
         }
 
         if(bViewQuadTree)
@@ -428,6 +450,7 @@ public:
         ImGui::Text("Controls:");
         ImGui::Text("TAB: Switch from Linear to Quad-Tree");
         ImGui::Text("X: Switch for viewing Quad-Tree");
+        ImGui::Text("Z: Switch for viewing Rects");
         ImGui::Text("Q: Zoom In");
         ImGui::Text("E: Zoom Out");
         ImGui::Text("Mouse Left-Button: Move");
