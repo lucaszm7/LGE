@@ -128,14 +128,14 @@ namespace LGE
             // Zooming with Q and E
             if (LGE::GetKey(GLFW_KEY_E) == GLFW_PRESS)
             {
-                fScaleX *= 1.003f;
-                fScaleY *= 1.003f;
+                fScaleX *= 1.010f;
+                fScaleY *= 1.010f;
             }
 
             if (LGE::GetKey(GLFW_KEY_Q) == GLFW_PRESS)
             {
-                fScaleX *= 0.997f;
-                fScaleY *= 0.997f;
+                fScaleX *= 0.990f;
+                fScaleY *= 0.990f;
             }
 
 
