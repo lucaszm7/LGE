@@ -36,7 +36,6 @@ struct rect
 
 };
 
-
 constexpr size_t MAX_DEPTH = 8;
 
 template <typename OBJECT_TYPE>
@@ -180,6 +179,76 @@ public:
 };
 
 
+template<typename OBJECT_TYPE>
+class StaticQuadTreeContainer
+{
+    using QuadTreeContainer = std::list<OBJECT_TYPE>;
+
+protected:
+    QuadTreeContainer m_AllItems;
+    StaticQuadTree<typename QuadTreeContainer::iterator> root;
+
+public:
+    StaticQuadTreeContainer(const rect& size = { {0.0f, 0.0f},{100.0f, 100.0f} }, const size_t depth = 0)
+        : root(size) {}
+
+    void resize(const rect& area)
+    {
+        root.resize(area);
+    }
+
+    size_t size() const
+    {
+        return m_AllItems.size();
+    }
+
+    bool empty() const
+    {
+        return m_AllItems.empty();
+    }
+
+    void clear()
+    {
+        root.clear();
+        m_AllItems.clear();
+    }
+
+    typename QuadTreeContainer::iterator begin()
+    {
+        return m_AllItems.begin();
+    }
+    
+    typename QuadTreeContainer::iterator end()
+    {
+        return m_AllItems.end();
+    }
+    
+    typename QuadTreeContainer::const_iterator cbegin()
+    {
+        return m_AllItems.cbegin();
+    }
+    
+    typename QuadTreeContainer::const_iterator cend()
+    {
+        return m_AllItems.cend();
+    }
+
+    void insert(const OBJECT_TYPE& item, const rect& itemsize)
+    {
+        m_AllItems.push_back(item);
+
+        root.insert(std::prev(m_AllItems.end()), itemsize);
+    }
+
+    std::list<typename QuadTreeContainer::iterator> search(const rect& area) const
+    {
+        std::list<typename QuadTreeContainer::iterator> listItemPointers;
+        root.search(area, listItemPointers);
+        return listItemPointers;
+    }
+
+};
+
 
 class SceneStaticQuadTree : public LGE::Scene_t
 {
@@ -194,14 +263,14 @@ protected:
     };
 
     std::vector<SomeObjectWithArea> vecObjects;
-    StaticQuadTree<SomeObjectWithArea> treeObjects;
+    StaticQuadTreeContainer<SomeObjectWithArea> treeObjects;
 
     float fArea = 100000.0f;
 
-    double msDrawingTime;
-    unsigned int drawCalls;
+    double msDrawingTime = 0;
+    unsigned int drawCalls = 0;
 
-    bool bUseQuadTree;
+    bool bUseQuadTree = false;
     bool bHeld = false;
 
 public:
@@ -258,7 +327,7 @@ public:
             for (const auto& obj : treeObjects.search(rScreen))
             {
                 calls++;
-                DrawRect(obj.vPos, obj.vSize, obj.col);
+                DrawRect(obj->vPos, obj->vSize, obj->col);
             }
             drawCalls = calls;
             msDrawingTime = time.now();
@@ -285,10 +354,6 @@ public:
 
     }
 
-    void OnRender() override
-    {
-
-    }
 
     void OnImGuiRender() override
     {
@@ -299,6 +364,12 @@ public:
             ImGui::Text("USING QUAD TREES :) !!!");
         if(!bUseQuadTree)
             ImGui::Text("NOT USING QUAD TREES ;( ...");
+        ImGui::Text("Controls:");
+        ImGui::Text("TAB: Switch from Linear to Quad-Tree");
+        ImGui::Text("Q: Zoom In");
+        ImGui::Text("E: Zoom Out");
+        ImGui::Text("Mouse Picking: Move");
+
 
     }
 
