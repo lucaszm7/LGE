@@ -262,12 +262,13 @@ protected:
         Color col;
     };
 
-    std::vector<SomeObjectWithArea> vecObjects;
+    std::list<SomeObjectWithArea> vecObjects;
     StaticQuadTreeContainer<SomeObjectWithArea> treeObjects;
 
     float fArea = 100000.0f;
 
     double msDrawingTime = 0;
+    double msDrawingTimeBefore = 0;
     unsigned int drawCalls = 0;
 
     bool bUseQuadTree = false;
@@ -357,13 +358,22 @@ public:
 
     void OnImGuiRender() override
     {
-        ImGui::Text("Took %.3f ms", msDrawingTime);
+        ImGui::Text("Took %.3f ms", (msDrawingTime + msDrawingTimeBefore) / 2);
+        msDrawingTimeBefore = msDrawingTime;
         ImGui::Text("Draw Calls: %.3u", drawCalls);
 
         if (bUseQuadTree)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Text("USING QUAD TREES :) !!!");
-        if(!bUseQuadTree)
+            ImGui::PopStyleColor();
+        }
+        if (!bUseQuadTree)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Text("NOT USING QUAD TREES ;( ...");
+            ImGui::PopStyleColor();
+        }
         ImGui::Text("Controls:");
         ImGui::Text("TAB: Switch from Linear to Quad-Tree");
         ImGui::Text("Q: Zoom In");
