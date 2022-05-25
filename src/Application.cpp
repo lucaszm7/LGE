@@ -289,6 +289,8 @@ protected:
     unsigned int drawCalls = 0;
 
     bool bUseQuadTree = false;
+    bool bViewQuadTree = true;
+    bool bHeldViewQuadTree = false;
     bool bHeld = false;
     bool bAddRect = false;
 
@@ -318,8 +320,6 @@ public:
 
     void OnUpdate(float fElapsedTime) override
     {
-        treeObjects.Draw();
-
         if (LGE::GetMouseButton(1) == GLFW_PRESS && !bAddRect)
         {
             bAddRect = true;
@@ -348,6 +348,15 @@ public:
         {
             bHeld = false;
             bUseQuadTree = !bUseQuadTree;
+        }
+        
+        if (LGE::GetKey(GLFW_KEY_X) == GLFW_PRESS && !bHeldViewQuadTree)
+            bHeldViewQuadTree = true;
+
+        if (LGE::GetKey(GLFW_KEY_X) == GLFW_RELEASE && bHeldViewQuadTree)
+        {
+            bHeldViewQuadTree = false;
+            bViewQuadTree = !bViewQuadTree;
         }
 
         float fWorldTLX, fWorldTLY;
@@ -392,7 +401,8 @@ public:
             msDrawingTime = time.now();
         }
 
-        
+        if(bViewQuadTree)
+            treeObjects.Draw();
 
     }
 
@@ -417,9 +427,11 @@ public:
         }
         ImGui::Text("Controls:");
         ImGui::Text("TAB: Switch from Linear to Quad-Tree");
+        ImGui::Text("X: Switch for viewing Quad-Tree");
         ImGui::Text("Q: Zoom In");
         ImGui::Text("E: Zoom Out");
-        ImGui::Text("Mouse Picking: Move");
+        ImGui::Text("Mouse Left-Button: Move");
+        ImGui::Text("Mouse Right-Button: Add Obj");
 
 
     }
