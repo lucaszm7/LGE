@@ -124,7 +124,7 @@ private:
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    Drawer(SHAPE t, size_t v_size = 12, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
+    Drawer(SHAPE t, size_t v_size = 12000, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
         dta = pdta;
         dta_size = v_size;
@@ -165,7 +165,7 @@ public:
                 m_Index[i] = i;
             }
         }
-        m_IB = std::make_unique<IndexBuffer>(nullptr, dta_size);
+        m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
     }
 
     ~Drawer()
@@ -195,20 +195,27 @@ public:
                         m_Index[(i + 4) + (i / 2)] = i + 2;
                         m_Index[(i + 5) + (i / 2)] = i + 3;
                     }
+                    m_VAO.reset();
+                    m_VAO = std::make_unique<VertexArray>();
+                    m_IB.reset();
+                    m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
+                    m_VB.reset();
+                    m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
+                    m_VAO->AddBuffer(*m_VB, *m_Layout);
                 }
-                else
+                else if (v_size > m_Index.size())
                 {
                     m_Index.resize(v_size);
                     for (unsigned int i = 0; i < v_size; ++i)
                         m_Index[i] = i;
+                    m_VAO.reset();
+                    m_VAO = std::make_unique<VertexArray>();
+                    m_IB.reset();
+                    m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
+                    m_VB.reset();
+                    m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
+                    m_VAO->AddBuffer(*m_VB, *m_Layout);
                 }
-                m_VAO.reset();
-                m_VAO = std::make_unique<VertexArray>();
-                m_IB.reset();
-                m_IB = std::make_unique<IndexBuffer>(nullptr, m_Index.size());
-                m_VB.reset();
-                m_VB = std::make_unique<VertexBuffer>(nullptr, sizeof(Vertex) * v_size, GL_DYNAMIC_DRAW);
-                m_VAO->AddBuffer(*m_VB, *m_Layout);
             }
             dta_size = v_size;
         }
