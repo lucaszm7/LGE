@@ -40,6 +40,7 @@ public:
 public:
     static void Init();
     static int WindowShouldClose();
+    static void SetWindowTitle(const char* name);
     static void Clear();
     static void ClearColor(float v0, float v1, float v2, float v3);
     static void Draw(const VertexArray& vao, const IndexBuffer& ib, const Shader& shader);

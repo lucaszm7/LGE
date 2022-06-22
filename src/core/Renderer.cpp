@@ -72,6 +72,11 @@ int Renderer::WindowShouldClose()
     return glfwWindowShouldClose(LGE::window);
 }
 
+void Renderer::SetWindowTitle(const char* name)
+{
+    glfwSetWindowTitle(LGE::window, name);
+}
+
 void Renderer::Clear()
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -176,7 +181,7 @@ GLFWwindow* Renderer::SetupGLFW()
     if (!window)
         exit(-1);
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    // glfwSwapInterval(1);
 
     // int state = glfwGetKey(window, GLFW_KEY_E);
     // glfwGetCursorPos(window, &xpos, &ypos);

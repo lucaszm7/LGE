@@ -2,6 +2,7 @@
 
 // Draw Stuff
 #include <GL/glew.h>
+#include <chrono>
 #include "Geometry.h"
 #include "Scene.h"
 
@@ -28,7 +29,7 @@ void DrawLine(float sx, float sy, float ex, float ey, const Color& c = { 1.0f, 0
     LinesQueue.emplace_back(ex, ey, c);
 }
 
-void DrawRect(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 1.0f, 0.0f, 0.0f, 1.0f })
+void DrawRect(const glm::vec2& vPos, const glm::vec2& vSize, const Color& c = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
     RectQueue.emplace_back(vPos.x, vPos.y, c);
     RectQueue.emplace_back(vPos.x + vSize.x, vPos.y, c);
@@ -36,7 +37,7 @@ void DrawRect(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 1.0f, 0
     RectQueue.emplace_back(vPos.x, vPos.y + vSize.y, c);
 }
 
-void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, Color c = { 0.0f, 0.0f, 0.0f, 1.0f })
+void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, const Color& c = { 0.0f, 0.0f, 0.0f, 1.0f })
 {
     LinesQueue.emplace_back(vPos.x, vPos.y, c);
     LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y, c);
@@ -187,6 +188,11 @@ namespace LGE
         std::unique_ptr<Shader> m_Shader;
         glm::mat4 m_Proj;
 
+        std::chrono::steady_clock::time_point start;
+        std::chrono::duration<double> duration;
+        int FPS = 0;
+        int count = 0;
+        std::string title;
 
     public:
         Application()
@@ -218,6 +224,17 @@ namespace LGE
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
             while (!Renderer::WindowShouldClose())
             {
+                duration = std::chrono::high_resolution_clock::now() - start;
+                count++;
+                if ((duration.count()) > 0.5)
+                {
+                    start = std::chrono::high_resolution_clock::now();
+                    FPS = (count * 2);
+                    count = 0;
+                }
+                title = m_MainMenu->c_SceneName + " - " + std::to_string(FPS) + " FPS";
+                Renderer::SetWindowTitle(title.c_str());
+
                 Renderer::Clear();
                 Renderer::CreateImGuiFrame();
 
@@ -229,10 +246,6 @@ namespace LGE
                     PointsQueue.clear();
                     RectQueue.clear();
 
-                    LinesQueue.shrink_to_fit();
-                    PointsQueue.shrink_to_fit();
-                    RectQueue.shrink_to_fit();
-                    
                     DrawerPoints.reset();
                     DrawerLines.reset();
                     DrawerRects.reset();
