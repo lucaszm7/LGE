@@ -208,6 +208,10 @@ namespace LGE
             DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
             DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
 
+            LinesQueue.reserve(100000);
+            PointsQueue.reserve(100000);
+            RectQueue.reserve(100000);
+
             m_Shader = std::make_unique<Shader>("res/shaders/Basic_2D.shader");
             m_Shader->Bind();
         }
