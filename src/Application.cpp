@@ -409,7 +409,7 @@ public:
                     DrawRect(obj->vPos, obj->vSize, obj->col);
                 }
                 drawCalls = calls;
-                msDrawingTime = time.now();
+                msDrawingTime = time.nowMs();
             }
 
             // Linear
@@ -426,7 +426,7 @@ public:
                     }
                 }
                 drawCalls = calls;
-                msDrawingTime = time.now();
+                msDrawingTime = time.nowMs();
             }
         }
 

@@ -188,8 +188,7 @@ namespace LGE
         std::unique_ptr<Shader> m_Shader;
         glm::mat4 m_Proj;
 
-        std::chrono::steady_clock::time_point start;
-        std::chrono::duration<double> duration;
+        LGE::Timer timer;
         int FPS = 0;
         int count = 0;
         std::string title;
@@ -228,11 +227,10 @@ namespace LGE
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
             while (!Renderer::WindowShouldClose())
             {
-                duration = std::chrono::high_resolution_clock::now() - start;
                 count++;
-                if ((duration.count()) > 0.5)
+                if (timer.now() > 0.5)
                 {
-                    start = std::chrono::high_resolution_clock::now();
+                    timer.reset();
                     FPS = (count * 2);
                     count = 0;
                 }
