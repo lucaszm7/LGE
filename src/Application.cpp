@@ -128,15 +128,15 @@ public:
     }
 
 
-    std::list<OBJECT_TYPE> search(rect& rArea) const
+    std::vector<OBJECT_TYPE> search(rect& rArea) const
     {
-        std::list<OBJECT_TYPE> listItems;
+        std::vector<OBJECT_TYPE> listItems;
         listItems.resize(10);
         search(rArea, listItems);
         return listItems;
     }
 
-    void search(const rect& rArea, std::list<OBJECT_TYPE>& listItems) const
+    void search(const rect& rArea, std::vector<OBJECT_TYPE>& listItems) const
     {
         // First gonna check if the area belongs to this area
         for (const auto& p : m_pItems)
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    void items(std::list<OBJECT_TYPE>& listItems) const
+    void items(std::vector<OBJECT_TYPE>& listItems) const
     {
         for (const auto& p : m_pItems)
         {
@@ -205,9 +205,13 @@ protected:
     QuadTreeContainer m_AllItems;
     StaticQuadTree<typename QuadTreeContainer::iterator> root;
 
+    mutable std::vector<typename QuadTreeContainer::iterator> listItemPointers;
+
 public:
     StaticQuadTreeContainer(const rect& size = { {0.0f, 0.0f},{100.0f, 100.0f} }, const size_t depth = 0)
-        : root(size) {}
+        : root(size) {
+        listItemPointers.reserve(100000);
+    }
 
     void resize(const rect& area)
     {
@@ -253,13 +257,12 @@ public:
     void insert(const OBJECT_TYPE& item, const rect& itemsize)
     {
         m_AllItems.push_back(item);
-
         root.insert(std::prev(m_AllItems.end()), itemsize);
     }
 
-    std::list<typename QuadTreeContainer::iterator> search(const rect& area) const
+    const std::vector<typename QuadTreeContainer::iterator>& search(const rect& area) const
     {
-        std::list<typename QuadTreeContainer::iterator> listItemPointers;
+        listItemPointers.clear();
         root.search(area, listItemPointers);
         return listItemPointers;
     }
