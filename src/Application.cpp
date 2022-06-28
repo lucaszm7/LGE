@@ -7,6 +7,8 @@
 #include <vector>
 #include <array>
 #include <list>
+#include <deque>
+
 
 struct rect
 {
@@ -128,13 +130,14 @@ public:
     }
 
 
-    std::vector<OBJECT_TYPE> search(rect& rArea) const
+    /*const std::vector<OBJECT_TYPE>& search(rect& rArea) const
     {
         std::vector<OBJECT_TYPE> listItems;
+        listItems.reserve(100000)
         listItems.resize(10);
         search(rArea, listItems);
         return listItems;
-    }
+    }*/
 
     void search(const rect& rArea, std::vector<OBJECT_TYPE>& listItems) const
     {
@@ -199,18 +202,18 @@ public:
 template<typename OBJECT_TYPE>
 class StaticQuadTreeContainer
 {
-    using QuadTreeContainer = std::list<OBJECT_TYPE>;
+    using QuadTreeContainer = std::deque<OBJECT_TYPE>;
 
 protected:
     QuadTreeContainer m_AllItems;
-    StaticQuadTree<typename QuadTreeContainer::iterator> root;
 
+    StaticQuadTree<typename QuadTreeContainer::iterator> root;
     mutable std::vector<typename QuadTreeContainer::iterator> listItemPointers;
 
 public:
     StaticQuadTreeContainer(const rect& size = { {0.0f, 0.0f},{100.0f, 100.0f} }, const size_t depth = 0)
         : root(size) {
-        listItemPointers.reserve(100000);
+        listItemPointers.reserve(100001);
     }
 
     void resize(const rect& area)
@@ -263,6 +266,7 @@ public:
     const std::vector<typename QuadTreeContainer::iterator>& search(const rect& area) const
     {
         listItemPointers.clear();
+        listItemPointers.reserve(m_AllItems.size());
         root.search(area, listItemPointers);
         return listItemPointers;
     }
@@ -298,7 +302,7 @@ protected:
 
     bool bUseQuadTree = false;
 
-    bool bViewQuadTree = true;
+    bool bViewQuadTree = false;
     bool bHeldViewQuadTree = false;
 
     bool bViewRects = true;
