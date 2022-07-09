@@ -472,10 +472,39 @@ public:
     }
 };
 
+class PixelDrawing : public LGE::Scene_t
+{
+public:
+    PixelDrawing()
+    {
+
+    }
+
+    ~PixelDrawing() {}
+
+    void OnUpdate(float fElapsedTime) override
+    {
+        for (int i = 0; i < SCREEN_WIDTH; ++i)
+        {
+            for (int j = 0; j < SCREEN_HEIGHT; ++j)
+            {
+                DrawPixel(i, j, Color{ LGE::rand(0, 1), LGE::rand(0, 1), LGE::rand(0, 1), 1.0 });
+            }
+        }
+    }
+
+    void OnImGuiRender() override
+    {
+        ImGui::Text("Screen Width = %d", LGE::GetScreenWidth);
+        ImGui::Text("Screen Height = %d", LGE::GetScreenHeight);
+    }
+};
+
 int main(int argc, char** argv)
 {
     LGE::Application Demo;
     Demo.RegisterScene<SceneStaticQuadTree>("Static Quad Tree");
+    Demo.RegisterScene<PixelDrawing>("Pixel Drawing");
     Demo.Run ();
 
     /*Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");

@@ -49,6 +49,12 @@ void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, const Color& c
     LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
 }
 
+void DrawPixel(int x, int y, const Color& c = { 1.0f, 1.0f, 1.0f, 1.0f })
+{
+    PointsRadius = 1.0f;
+    PointsQueue.emplace_back(x, y, c);
+}
+
 namespace LGE
 {
     class TransformedView
@@ -192,6 +198,8 @@ namespace LGE
         int FPS = 0;
         int count = 0;
         std::string title;
+
+        
 
     public:
         Application()
