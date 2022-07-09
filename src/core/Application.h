@@ -9,7 +9,17 @@
 // Utility
 #include "utility/utils.h"
 
-
+namespace LGE
+{
+    int GetScreenWidth()
+    {
+        return Renderer::GetScreenWidth();
+    }
+    int GetScreenHeight()
+    {
+        return Renderer::GetScreenHeight();
+    }
+}
 
 // Queue
 static std::vector<Vertex> PointsQueue;

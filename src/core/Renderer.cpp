@@ -43,6 +43,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 namespace LGE
 {
     GLFWwindow* window;
+
+    int ScreenWidth;
+    int ScreenHeight;
+
     int GetKey(int key) // GLFW_KEY_E
     {
         return glfwGetKey(LGE::window, key);
@@ -193,4 +197,16 @@ GLFWwindow* Renderer::SetupGLFW()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
+}
+
+int Renderer::GetScreenWidth()
+{
+    glfwGetFramebufferSize(LGE::window, &LGE::ScreenWidth, &LGE::ScreenHeight);
+    return LGE::ScreenWidth;
+}
+
+int Renderer::GetScreenHeight()
+{
+    glfwGetFramebufferSize(LGE::window, &LGE::ScreenWidth, &LGE::ScreenHeight);
+    return LGE::ScreenHeight;
 }

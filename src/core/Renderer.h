@@ -52,4 +52,7 @@ public:
     static void UpdateGLFW();
     static void CleanUpImGui();
     static void CleanUpGLFW();
+
+    static int GetScreenWidth();
+    static int GetScreenHeight();
 };
