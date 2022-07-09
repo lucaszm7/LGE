@@ -1,4 +1,5 @@
 #pragma once
+#include <omp.h>
 
 // Draw Stuff
 #include <GL/glew.h>
