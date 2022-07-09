@@ -314,7 +314,7 @@ protected:
 public:
     SceneStaticQuadTree()
     {
-
+        LGE::UseTV = true;
         treeObjects.resize({ { 0.0f, 0.0f }, { fArea, fArea } });
 
         for (int i = 0; i < 100000; ++i)
@@ -506,13 +506,6 @@ int main(int argc, char** argv)
     Demo.RegisterScene<SceneStaticQuadTree>("Static Quad Tree");
     Demo.RegisterScene<PixelDrawing>("Pixel Drawing");
     Demo.Run ();
-
-    /*Demo.RegisterScene<LGE::TestClearColor>("Clear Color Test");
-    Demo.RegisterScene<LGE::TestDemo>("Texture Test");
-    Demo.RegisterScene<PolygonTest>("Polygon Test");
-    Demo.RegisterScene<ConvexHull>("ConvexHull");
-    Demo.RegisterScene<QuadTree_Scene>("QuadTree");*/
-
 
     return 0;
 }

@@ -67,6 +67,7 @@ void DrawPixel(int x, int y, const Color& c = { 1.0f, 1.0f, 1.0f, 1.0f })
 
 namespace LGE
 {
+    bool UseTV = false;
     class TransformedView
     {
     public:
@@ -283,25 +284,25 @@ namespace LGE
                     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
                 }
                 tv.HandleZoom();
-                PointsRadius *= tv.fScaleX;
+                if( LGE::UseTV ) PointsRadius *= tv.fScaleX;
                 m_CurrentApp->OnUpdate(0.0f);
                 // Draw Primitives
                 if (LinesQueue.size() > 0)
                 {
-                    tv.Transform(LinesQueue);
+                    if (LGE::UseTV) tv.Transform(LinesQueue);
                     DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
                     LinesQueue.clear();
                 }
                 if (PointsQueue.size() > 0)
                 {
-                    tv.Transform(PointsQueue);
+                    if (LGE::UseTV) tv.Transform(PointsQueue);
                     DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
                     PointsQueue.clear();
                 }
                 
                 if (RectQueue.size() > 0)
                 {
-                    tv.Transform(RectQueue);
+                    if (LGE::UseTV) tv.Transform(RectQueue);
                     DrawerRects->Draw(&RectQueue[0], RectQueue.size());
                     RectQueue.clear();
                 }
