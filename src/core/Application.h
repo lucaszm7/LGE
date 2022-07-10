@@ -205,13 +205,7 @@ namespace LGE
         // Transform
         std::unique_ptr<Shader> m_Shader;
         glm::mat4 m_Proj;
-
-        LGE::Timer timer;
-        int FPS = 0;
-        int count = 0;
-        std::string title;
-
-        
+        LGE::Timer dElapsedTime;
 
     public:
         Application()
@@ -247,18 +241,14 @@ namespace LGE
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
             while (!Renderer::WindowShouldClose())
             {
-                count++;
-                if (timer.now() > 0.5)
-                {
-                    timer.reset();
-                    FPS = (count * 2);
-                    count = 0;
-                }
-                title = m_MainMenu->c_SceneName + " - " + std::to_string(FPS) + " FPS";
-                Renderer::SetWindowTitle(title.c_str());
+
+                Renderer::SetWindowTitle(m_MainMenu->c_SceneName.c_str());
 
                 Renderer::Clear();
                 Renderer::CreateImGuiFrame();
+
+                if (LGE::UseTV) { PointsRadius *= tv.fScaleX; tv.HandleZoom(); }
+                m_Shader->SetUniformMat4f("u_MVP", m_Proj);
 
                 /* Render here */
                 ImGui::Begin(m_MainMenu->c_SceneName.c_str());
@@ -280,13 +270,18 @@ namespace LGE
 
                     delete m_CurrentApp;
                     
+                    LGE::UseTV = false;
                     m_CurrentApp = m_MainMenu;
                     m_MainMenu->c_SceneName = "Main Menu";
                     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
                 }
-                tv.HandleZoom();
-                if( LGE::UseTV ) PointsRadius *= tv.fScaleX;
-                m_CurrentApp->OnUpdate(0.0f);
+                
+                auto fElapsedTime = dElapsedTime.now();
+                ImGui::Text("FPS: %.2f", 1/ fElapsedTime);
+                ImGui::Text("All time: %f ms", fElapsedTime * 1000.0);
+                dElapsedTime.reset();
+                m_CurrentApp->OnUpdate(fElapsedTime);
+
                 // Draw Primitives
                 if (LinesQueue.size() > 0)
                 {
@@ -300,7 +295,6 @@ namespace LGE
                     DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
                     PointsQueue.clear();
                 }
-                
                 if (RectQueue.size() > 0)
                 {
                     if (LGE::UseTV) tv.Transform(RectQueue);
@@ -308,12 +302,11 @@ namespace LGE
                     RectQueue.clear();
                 }
 
-                m_Shader->SetUniformMat4f("u_MVP", m_Proj);
                 m_CurrentApp->OnRender();
                 m_CurrentApp->OnImGuiRender();
-                ImGui::End();
                 /* Render Ends */
 
+                ImGui::End();
                 Renderer::UpdateImGui();
                 Renderer::UpdateGLFW();
             }
