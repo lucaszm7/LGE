@@ -179,19 +179,6 @@
       <Project>{2717c662-0fe9-422b-beb6-bb9f125ba823}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h" />
-    <ClInclude Include="Dependencies\GLEW\include\GL\glew.h" />
-    <ClInclude Include="Dependencies\GLEW\include\GL\glxew.h" />
-    <ClInclude Include="Dependencies\GLEW\include\GL\wglew.h" />
-    <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="Dependencies\GLEW\lib\Release\Win32\glew32s.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </Library>
-    <Library Include="Dependencies\GLFW\lib-vc2019\glfw3.lib" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
