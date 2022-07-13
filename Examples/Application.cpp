@@ -1,4 +1,3 @@
-// LGE library
 #include "Application.h"
 
 // Standart Stuff

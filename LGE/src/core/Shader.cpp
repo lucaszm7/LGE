@@ -2,7 +2,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-
+#pragma once
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #include "Shader.h"
 
@@ -26,6 +29,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
     if (!stream)
     {
         std::cout << "Wrong shader Path!" << std::endl;
+        std::cin.get();
         exit(-1);
     }
 

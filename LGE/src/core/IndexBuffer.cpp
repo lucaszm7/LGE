@@ -1,4 +1,8 @@
 #include "IndexBuffer.h"
+#pragma once
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count, GLenum mode)

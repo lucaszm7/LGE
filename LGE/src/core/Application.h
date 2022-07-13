@@ -1,6 +1,9 @@
 #pragma once
 #include <omp.h>
-
+#pragma once
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif
 // Draw Stuff
 #include <GL/glew.h>
 #include <chrono>

@@ -1,4 +1,8 @@
 #pragma once
+#pragma once
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 
 // Create a vertex buffer in the GPU MEM, pass the data in and Binded
