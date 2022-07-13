@@ -202,7 +202,7 @@ public:
 template<typename OBJECT_TYPE>
 class StaticQuadTreeContainer
 {
-    using QuadTreeContainer = std::deque<OBJECT_TYPE>;
+    using QuadTreeContainer = std::list<OBJECT_TYPE>;
 
 protected:
     QuadTreeContainer m_AllItems;
