@@ -15,7 +15,10 @@ private:
 public:
 	IndexBuffer(const unsigned int* data, unsigned int count, GLenum mode = GL_DYNAMIC_DRAW);
 	~IndexBuffer();
-
+	void New();
+	void Delete();
+	void Resize(size_t new_size, void* data = nullptr, GLenum mode = GL_DYNAMIC_DRAW);
+	size_t Size();
 	void Bind() const;
 	void Unbind() const;
 
