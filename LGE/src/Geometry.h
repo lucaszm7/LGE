@@ -94,11 +94,6 @@ inline std::ostream& operator << (std::ostream& out, const Vertex& v)
     return out;
 }
 
-// Abstract Class
-struct Primitive
-{
-    virtual void Draw() {};
-};
 
 enum class SHAPE
 {
