@@ -220,13 +220,13 @@ namespace LGE
             m_CurrentApp = m_MainMenu;
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 
-            DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
-            DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
+            // DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+            // DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
             DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
 
-            LinesQueue.reserve(100000);
-            PointsQueue.reserve(100000);
-            RectQueue.reserve(100000);
+            LinesQueue.reserve(10000);
+            PointsQueue.reserve(10000);
+            RectQueue.reserve(10000);
 
             m_Shader = std::make_unique<Shader>("res/shaders/Basic_2D.shader");
             m_Shader->Bind();
@@ -265,8 +265,8 @@ namespace LGE
                     DrawerLines.reset();
                     DrawerRects.reset();
                     
-                    DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
-                    DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
+                    // DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+                    // DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
                     DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
                     
                     // m_Shader.reset();
@@ -285,24 +285,27 @@ namespace LGE
                 dElapsedTime.reset();
                 m_CurrentApp->OnUpdate(fElapsedTime);
 
-                // Draw Primitives
-                if (LinesQueue.size() > 0)
+                // MEMORY LEAK HERE!
                 {
-                    if (LGE::UseTV) tv.Transform(LinesQueue);
-                    DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
-                    LinesQueue.clear();
-                }
-                if (PointsQueue.size() > 0)
-                {
-                    if (LGE::UseTV) tv.Transform(PointsQueue);
-                    DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
-                    PointsQueue.clear();
-                }
-                if (RectQueue.size() > 0)
-                {
-                    if (LGE::UseTV) tv.Transform(RectQueue);
-                    DrawerRects->Draw(&RectQueue[0], RectQueue.size());
-                    RectQueue.clear();
+                    //// Draw Primitives
+                    if (LinesQueue.size() > 0)
+                    {
+                        if (LGE::UseTV) tv.Transform(LinesQueue);
+                        // DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
+                        LinesQueue.clear();
+                    }
+                    if (PointsQueue.size() > 0)
+                    {
+                        if (LGE::UseTV) tv.Transform(PointsQueue);
+                        // DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
+                        PointsQueue.clear();
+                    }
+                    if (RectQueue.size() > 0)
+                    {
+                        if (LGE::UseTV) tv.Transform(RectQueue);
+                        DrawerRects->Draw(&RectQueue[0], RectQueue.size());
+                        RectQueue.clear();
+                    }
                 }
 
                 m_CurrentApp->OnRender();
