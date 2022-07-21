@@ -105,7 +105,7 @@ enum class SHAPE
 
 };
 float PointsRadius = 50.0f;
-struct Drawer : Primitive
+struct Drawer
 {
 public:
     void* dta;
