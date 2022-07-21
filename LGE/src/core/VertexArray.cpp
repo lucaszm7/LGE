@@ -1,13 +1,16 @@
 #include "VertexArray.h"
+#include <iostream>
 
 
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &m_RendererID);
+    // std::cout << "Creating Vertex Array - " << m_RendererID << "\n";
 }
 
 VertexArray::~VertexArray()
 {
+    // std::cout << "Deleting Vertex Array - " << m_RendererID << "\n";
     glDeleteVertexArrays(1, &m_RendererID);
 }
 
@@ -50,6 +53,16 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, VertexBufferLayout& layout)
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
     }
 
+}
+
+void VertexArray::New()
+{
+    glGenVertexArrays(1, &m_RendererID);
+}
+
+void VertexArray::Delete()
+{
+    glDeleteVertexArrays(1, &m_RendererID);
 }
 
 void VertexArray::Bind() const
