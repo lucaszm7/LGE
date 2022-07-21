@@ -13,8 +13,22 @@
 Shader::Shader(const std::string& filepath)
 	:m_FilePath(filepath), m_RendererID(0)
 {
-    ShaderProgramSource shaderSource = ParseShader(filepath);
-    m_RendererID = CreateShader(shaderSource.VertexSource, shaderSource.FragmentSource);
+    ShaderProgramSource* shaderSource = ParseShader(filepath);
+    if (!shaderSource)
+    {
+        size_t location = filepath.find_last_of('/');
+        std::string newFilepath = "none";
+        if (location != filepath.npos)
+            newFilepath = filepath.substr(location + 1);
+        shaderSource = ParseShader(newFilepath);
+        if (!shaderSource)
+        {
+            std::cout << "No shader loaded!\n";
+            system("pause");
+            return;
+        }
+    }
+    m_RendererID = CreateShader(shaderSource->VertexSource, shaderSource->FragmentSource);
 }
 
 Shader::~Shader()
@@ -22,15 +36,15 @@ Shader::~Shader()
     glDeleteProgram(m_RendererID);
 }
 
-ShaderProgramSource Shader::ParseShader(const std::string& filepath)
+ShaderProgramSource* Shader::ParseShader(const std::string& filepath)
 {
     std::ifstream stream(filepath);
 
     if (!stream)
     {
         std::cout << "Wrong shader Path!" << std::endl;
-        std::cin.get();
-        exit(-1);
+        return nullptr;
+        // std::cin.get();
     }
 
     std::stringstream ss[2];
@@ -58,7 +72,8 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
             ss[(int)type] << line << '\n';
         }
     }
-    return { ss[0].str(), ss[1].str() };
+
+    return new ShaderProgramSource{ ss[0].str(), ss[1].str() };
 }
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
