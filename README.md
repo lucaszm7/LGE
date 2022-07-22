@@ -9,7 +9,8 @@ Quad-Tree Implementation: https://drive.google.com/file/d/1NzEutmU_LQmYcFGxGamX-
 
 ## Bugs && Ideias
 
-- Leak memory probably comming from `m_VAO` from `Grometry.h`
+- Performance affected from fix in memory leak
+- Still consuming lots of unknown memory :(
 
 ## Implementation
 
