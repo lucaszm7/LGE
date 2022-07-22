@@ -220,8 +220,8 @@ namespace LGE
             m_CurrentApp = m_MainMenu;
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 
-            // DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
-            // DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
+            DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+            DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
             DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
 
             LinesQueue.reserve(10000);
@@ -265,8 +265,8 @@ namespace LGE
                     DrawerLines.reset();
                     DrawerRects.reset();
                     
-                    // DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
-                    // DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
+                    DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+                    DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
                     DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
                     
                     // m_Shader.reset();
@@ -285,19 +285,18 @@ namespace LGE
                 dElapsedTime.reset();
                 m_CurrentApp->OnUpdate(fElapsedTime);
 
-                // MEMORY LEAK HERE!
                 {
                     //// Draw Primitives
                     if (LinesQueue.size() > 0)
                     {
                         if (LGE::UseTV) tv.Transform(LinesQueue);
-                        // DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
+                        DrawerLines->Draw(&LinesQueue[0], LinesQueue.size());
                         LinesQueue.clear();
                     }
                     if (PointsQueue.size() > 0)
                     {
                         if (LGE::UseTV) tv.Transform(PointsQueue);
-                        // DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
+                        DrawerPoints->Draw(&PointsQueue[0], PointsQueue.size());
                         PointsQueue.clear();
                     }
                     if (RectQueue.size() > 0)
