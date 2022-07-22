@@ -116,13 +116,15 @@ private:
     std::vector<unsigned int> m_Index;
     VertexBufferLayout *m_Layout;
 
+    static const unsigned int nBufferMaxSize = 100000;
+
 private:
     std::unique_ptr<VertexArray> m_VAO;
     std::unique_ptr<VertexBuffer> m_VB;
     std::unique_ptr<IndexBuffer> m_IB;
 
 public:
-    Drawer(SHAPE t, size_t v_size = 12000, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
+    Drawer(SHAPE t, size_t v_size = nBufferMaxSize, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
         dta = pdta;
         dta_size = v_size;
