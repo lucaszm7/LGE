@@ -14,10 +14,8 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size, GLenum mode)
 
 VertexBuffer::~VertexBuffer()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    std::cout << "Deleting Vertex Buffer - " << m_RendererID << " of size: " << size << "\n";
+    std::cout << "Deleting Vertex Buffer - " << m_RendererID << " of size: " << Size() << "\n";
+    Unbind();
     glDeleteBuffers(1, &m_RendererID);
 }
 
@@ -44,7 +42,7 @@ void VertexBuffer::Resize(size_t new_size, void* data, GLenum mode)
     glBufferData(GL_ARRAY_BUFFER, new_size, data, mode);
 }
 
-size_t VertexBuffer::Size()
+size_t VertexBuffer::Size() const
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
     GLint size = 0;

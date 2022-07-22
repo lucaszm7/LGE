@@ -15,7 +15,7 @@ public:
 	void New();
 	void Delete();
 	void Resize(size_t new_size, void* data = nullptr, GLenum mode = GL_DYNAMIC_DRAW);
-	size_t Size();
+	size_t Size() const;
 	void Bind() const;
 	void Unbind() const;
 };

@@ -20,10 +20,8 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count, GLenum mo
 
 IndexBuffer::~IndexBuffer()
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    std::cout << "Deleting Index Buffer - " << m_RendererID << " of size: " << size << "\n";
+    std::cout << "Deleting Index Buffer - " << m_RendererID << " of size: " << Size() << "\n";
+    Unbind();
     glDeleteBuffers(1, &m_RendererID);
 }
 
@@ -50,7 +48,7 @@ void IndexBuffer::Resize(size_t new_size, void* data, GLenum mode)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, new_size * sizeof(unsigned int), data, mode);
 }
 
-size_t IndexBuffer::Size()
+size_t IndexBuffer::Size() const
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
     GLint size = 0;
