@@ -499,11 +499,120 @@ public:
     }
 };
 
+constexpr int ScreenWidth = 1280;
+constexpr int ScreenHeight = 960;
+
+constexpr float simMinWidth = 20.0f;
+constexpr double simScale = ScreenHeight / simMinWidth;
+constexpr float simWidth = ScreenWidth / simScale;
+constexpr float simHeight = ScreenHeight / simScale;
+
+class MinutesPhysics : public LGE::Scene_t
+{
+public:
+
+
+    float cX(glm::vec2 pos)
+    {
+        return pos.x * simScale;
+    }
+    
+    float cY(glm::vec2 pos)
+    {
+        return ScreenHeight - pos.y * simScale;
+    }
+
+    glm::vec2 gravity = { 0.0,-10.0 };
+    double timeStep = 1.0 / 60.0;
+
+    struct ball
+    {
+        float radius = 0.2;
+        glm::vec2 pos { 0.2, 0.2 };
+        glm::vec2 vel { 10.0, 15.0 };
+    };
+
+    std::vector<ball> balls;
+
+public:
+    MinutesPhysics()
+    {
+        balls.emplace_back();
+    }
+
+    ~MinutesPhysics() {}
+
+    void simulate(float fElapsedTime)
+    {
+        timeStep = fElapsedTime;
+
+        for (ball& b : balls)
+        {
+            b.vel.x += gravity.x * timeStep;
+            b.vel.y += gravity.y * timeStep;
+
+            b.vel.x *= 1.0 - ( 0.15f * timeStep );
+            b.vel.y *= 1.0 - ( 0.15f * timeStep );
+
+            b.pos.x += b.vel.x * timeStep;
+            b.pos.y += b.vel.y * timeStep;
+
+            if (b.pos.x < 0.0)
+            {
+                b.pos.x = 0.0;
+                b.vel.x = -b.vel.x;
+            }
+            if (b.pos.x > simWidth)
+            {
+                b.pos.x = simWidth;
+                b.vel.x = -b.vel.x;
+            }
+            if (b.pos.y < 0.0)
+            {
+                b.pos.y = 0.0;
+                b.vel.y = -b.vel.y;
+            }
+        }
+
+    }
+
+    void draw()
+    {
+        for(ball& b : balls)
+            DrawPoint(cX(b.pos), cY(b.pos), b.radius * simScale);
+    }
+
+
+    bool addBallHeld = false;
+    void OnUpdate(float fElapsedTime) override
+    {
+        simulate(fElapsedTime);
+        draw();
+        double mouseX, mouseY;
+        LGE::GetCursorPos(mouseX, mouseY);
+        if (LGE::GetMouseButton(0) == GLFW_PRESS)
+            addBallHeld = true;
+
+        if (LGE::GetMouseButton(0) == GLFW_RELEASE && addBallHeld == true)
+        {
+            balls.emplace_back(LGE::rand(0.1f, 1.0f), glm::vec2{ mouseX / simScale, mouseY / simScale }, glm::vec2{LGE::rand(10.0f, 30.0f), LGE::rand(10.0f, 30.0f)});
+            addBallHeld = false;
+        }
+
+    }
+
+    void OnImGuiRender() override
+    {
+        ImGui::Text("Has %d balls", balls.size());
+    }
+};
+
 int main(int argc, char** argv)
 {
     LGE::Application Demo;
     Demo.RegisterScene<SceneStaticQuadTree>("Static Quad Tree");
     Demo.RegisterScene<PixelDrawing>("Pixel Drawing");
+    Demo.RegisterScene<MinutesPhysics>("10 Minutes Physics");
     Demo.Run ();
 
     return 0;
