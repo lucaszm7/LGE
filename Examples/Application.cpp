@@ -521,15 +521,62 @@ public:
     {
         return ScreenHeight - pos.y * simScale;
     }
+    
+    float pX(glm::vec2 pos)
+    {
+        return pos.x / simScale;
+    }
+    
+    float pY(glm::vec2 pos)
+    {
+        return (ScreenHeight - pos.y) / simScale;
+    }
 
     glm::vec2 gravity = { 0.0,-10.0 };
     double timeStep = 1.0 / 60.0;
+    bool pause = false;
+    float restitution = 0.0f;
 
     struct ball
     {
-        float radius = 0.2;
+        float radius = 1.5;
         glm::vec2 pos { 0.2, 0.2 };
         glm::vec2 vel { 10.0, 15.0 };
+        Color c = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+        static bool collisionDetection(const ball& b0, const ball& b1)
+        {
+            auto vDis = b0.pos - b1.pos;
+            float d = glm::length(vDis);
+            auto radiiSum = (b0.radius + b1.radius);
+            return (d != 0.0 && d < radiiSum);
+        }
+
+        static void handleCollision(ball& b0, ball& b1, float rest)
+        {
+            auto dir = b1.pos - b0.pos;
+            float d = glm::length(dir);
+            auto radiiSum = (b0.radius + b1.radius);
+
+            dir = dir / d;
+
+            float corr = (radiiSum - d) / 2.0f;
+            b0.pos.x += dir.x * (-corr);
+            b0.pos.y += dir.y * (-corr);
+            b1.pos.x += dir.x *  corr;
+            b1.pos.y += dir.y *  corr;
+
+            auto v0 = glm::dot(b0.vel, dir);
+            auto v1 = glm::dot(b1.vel, dir);
+
+            auto newV0 = (v0 + v1 - (v0 - v1) * rest) / (2.0f);
+            auto newV1 = (v0 + v1 - (v1 - v0) * rest) / (2.0f);
+
+            b0.vel.x += dir.x * (newV0 - v0);
+            b0.vel.y += dir.y * (newV0 - v0);
+            b1.vel.x += dir.x * (newV1 - v1);
+            b1.vel.y += dir.y * (newV1 - v1);
+        }
     };
 
     std::vector<ball> balls;
@@ -537,65 +584,94 @@ public:
 public:
     MinutesPhysics()
     {
-        balls.emplace_back();
+        for (int i = 0; i < 10; ++i)
+        {
+            glm::vec2 loc = { LGE::rand(1.0f, ScreenWidth - 1) , LGE::rand(1.0f, ScreenHeight - 1) };
+            balls.emplace_back(20 / (simScale * 2), glm::vec2{ pX(loc), pY(loc) }, glm::vec2{ LGE::rand(-30.0f, 30.0f), LGE::rand(-30.0f, 30.0f) });
+        }
     }
 
-    ~MinutesPhysics() {}
+    ~MinutesPhysics() { std::cout << "Calling destructor"; }
+
+    void handleWallColl(ball& b0, float simWidth, float simHeight)
+    {
+        if (b0.pos.x < b0.radius)
+        {
+            b0.pos.x = b0.radius;
+            b0.vel.x = -b0.vel.x;
+        }
+        if (b0.pos.x > simWidth)
+        {
+            b0.pos.x = simWidth;
+            b0.vel.x = -b0.vel.x;
+        }
+        if (b0.pos.y < b0.radius)
+        {
+            b0.pos.y = b0.radius;
+            b0.vel.y = -b0.vel.y;
+        }
+        if (b0.pos.y > simHeight)
+        {
+            b0.pos.y = simHeight;
+            b0.vel.y = -b0.vel.y;
+        }
+    }
 
     void simulate(float fElapsedTime)
     {
         timeStep = fElapsedTime;
 
-        for (ball& b : balls)
+        for (ball& b0 : balls)
         {
-            b.vel.x += gravity.x * timeStep;
-            b.vel.y += gravity.y * timeStep;
+            b0.vel.x += gravity.x * timeStep;
+            b0.vel.y += gravity.y * timeStep;
 
-            b.vel.x *= 1.0 - ( 0.15f * timeStep );
-            b.vel.y *= 1.0 - ( 0.15f * timeStep );
+            b0.pos.x += b0.vel.x * timeStep;
+            b0.pos.y += b0.vel.y * timeStep;
 
-            b.pos.x += b.vel.x * timeStep;
-            b.pos.y += b.vel.y * timeStep;
+            bool coll = false;
+            for (ball& b1 : balls)
+            {
+                if (ball::collisionDetection(b0, b1))
+                {
+                    ball::handleCollision(b0, b1, restitution);
+                    coll = true;
+                    b0.c.y = 1.0f;
+                }
+            }
+            if (!coll)
+                b0.c.y = 0.0f;
 
-            if (b.pos.x < 0.0)
-            {
-                b.pos.x = 0.0;
-                b.vel.x = -b.vel.x;
-            }
-            if (b.pos.x > simWidth)
-            {
-                b.pos.x = simWidth;
-                b.vel.x = -b.vel.x;
-            }
-            if (b.pos.y < 0.0)
-            {
-                b.pos.y = 0.0;
-                b.vel.y = -b.vel.y;
-            }
+            handleWallColl(b0, simWidth, simHeight);
+
         }
-
     }
 
     void draw()
     {
-        for(ball& b : balls)
-            DrawPoint(cX(b.pos), cY(b.pos), b.radius * simScale);
+        for (ball& b : balls)
+        {
+            DrawPoint(cX(b.pos), cY(b.pos), b.radius * simScale * 2, b.c);
+        }
     }
 
 
     bool addBallHeld = false;
     void OnUpdate(float fElapsedTime) override
     {
-        simulate(fElapsedTime);
+        if(!pause)
+            simulate(fElapsedTime);
+
         draw();
         double mouseX, mouseY;
         LGE::GetCursorPos(mouseX, mouseY);
+        glm::vec2 mousePos(mouseX, mouseY);
         if (LGE::GetMouseButton(0) == GLFW_PRESS)
             addBallHeld = true;
 
         if (LGE::GetMouseButton(0) == GLFW_RELEASE && addBallHeld == true)
         {
-            balls.emplace_back(LGE::rand(0.1f, 1.0f), glm::vec2{ mouseX / simScale, mouseY / simScale }, glm::vec2{LGE::rand(10.0f, 30.0f), LGE::rand(10.0f, 30.0f)});
+            balls.emplace_back(20/ (simScale*2), glm::vec2{ pX(mousePos), pY(mousePos)}, glm::vec2{LGE::rand(-30.0f, 30.0f), LGE::rand(-30.0f, 30.0f)});
             addBallHeld = false;
         }
 
@@ -604,6 +680,9 @@ public:
     void OnImGuiRender() override
     {
         ImGui::Text("Has %d balls", balls.size());
+        if (ImGui::Button("Pause"))
+            pause = !pause;
+        ImGui::DragFloat("Restitution", &restitution, 0.01f, 0.0f, 1.0f);
     }
 };
 
