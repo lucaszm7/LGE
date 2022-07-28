@@ -6,6 +6,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec2.hpp>
+#include <glm/common.hpp>
+#include <glm/gtx/norm.hpp>
 
 #define ASSERT() __debugbreak();
 
