@@ -15,11 +15,11 @@
 
 namespace LGE
 {
-    int GetScreenWidth()
+    constexpr unsigned int GetScreenWidth()
     {
         return Renderer::GetScreenWidth();
     }
-    int GetScreenHeight()
+    constexpr unsigned int GetScreenHeight()
     {
         return Renderer::GetScreenHeight();
     }
@@ -29,12 +29,13 @@ namespace LGE
 static std::vector<Vertex> PointsQueue;
 static std::vector<Vertex> LinesQueue;
 static std::vector<Vertex> RectQueue;
+static std::vector<Vertex> PixelQueue;
 
+float PointsRadius = 20.0f;
 
 void DrawPoint(float x, float y, float r = 50.0f, const Color& c = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
     PointsQueue.emplace_back(x, y, c);
-    PointsRadius = r;
 }
 
 void DrawLine(float sx, float sy, float ex, float ey, const Color& c = { 1.0f, 0.0f, 0.0f, 1.0f })
@@ -63,10 +64,29 @@ void DrawRectEmpty(const glm::vec2& vPos, const glm::vec2& vSize, const Color& c
     LinesQueue.emplace_back(vPos.x + vSize.x, vPos.y + vSize.y, c);
 }
 
-void DrawPixel(int x, int y, const Color& c = { 1.0f, 1.0f, 1.0f, 1.0f })
+void setPixels()
 {
+#ifdef LGE_PIXEL_DRAWING
+    PixelQueue.resize(LGE::GetScreenWidth() * LGE::GetScreenHeight());
+    for(int x = 0; x < LGE::GetScreenWidth(); ++x)
+    {
+        for (int y = 0; y < LGE::GetScreenHeight(); ++y)
+        {
+            PixelQueue[(x * LGE::GetScreenHeight()) + y].Position = {x, y};
+        }
+    }
     PointsRadius = 1.0f;
-    PointsQueue.emplace_back(x, y, c);
+#endif
+}
+
+void DrawPixel(unsigned int x, unsigned int y, const Color& c = { 1.0f, 1.0f, 1.0f, 1.0f })
+{
+#ifdef LGE_PIXEL_DRAWING
+    if (x < LGE::GetScreenWidth() && y < LGE::GetScreenHeight())
+    {
+        PixelQueue[(x * LGE::GetScreenHeight()) + y].Color = c;
+    }
+#endif
 }
 
 namespace LGE
@@ -220,10 +240,11 @@ namespace LGE
             m_CurrentApp = m_MainMenu;
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 
-            DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
+            DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT, 500000, nullptr, nullptr, PointsRadius);
             DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
             DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
 
+            setPixels();
             LinesQueue.reserve(10000);
             PointsQueue.reserve(10000);
             RectQueue.reserve(10000);
@@ -286,6 +307,12 @@ namespace LGE
                 m_CurrentApp->OnUpdate(fElapsedTime);
 
                 {
+                    #ifdef LGE_PIXEL_DRAWING
+                    {
+                        if (LGE::UseTV) tv.Transform(PixelQueue);
+                        DrawerPoints->Draw(&PixelQueue[0], PixelQueue.size());
+                    } 
+                    #endif
                     //// Draw Primitives
                     if (LinesQueue.size() > 0)
                     {
@@ -305,6 +332,7 @@ namespace LGE
                         DrawerRects->Draw(&RectQueue[0], RectQueue.size());
                         RectQueue.clear();
                     }
+
                 }
 
                 m_CurrentApp->OnRender();

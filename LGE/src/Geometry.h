@@ -104,7 +104,6 @@ enum class SHAPE
     RECT = GL_TRIANGLES,
 
 };
-float PointsRadius = 50.0f;
 struct Drawer
 {
 public:
@@ -126,6 +125,7 @@ private:
 public:
     Drawer(SHAPE t, size_t v_size = nBufferMaxSize, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
     {
+        glPointSize(r);
         m_VAO.reserve(100);
         m_VB.reserve(100);
         m_IB.reserve(100);
@@ -222,7 +222,7 @@ public:
         if (static_cast<SHAPE>(type) == SHAPE::POINT)
         {
             glEnable(GL_POINT_SMOOTH);
-            glPointSize(PointsRadius);
+            // glPointSize(PointsRadius);
             // TODO - Pass a buffer to the shader with radius info
         }
 
