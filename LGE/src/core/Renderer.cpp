@@ -198,15 +198,3 @@ GLFWwindow* Renderer::SetupGLFW()
 
     return window;
 }
-
-int Renderer::GetScreenWidth()
-{
-    glfwGetFramebufferSize(LGE::window, &LGE::ScreenWidth, &LGE::ScreenHeight);
-    return LGE::ScreenWidth;
-}
-
-int Renderer::GetScreenHeight()
-{
-    glfwGetFramebufferSize(LGE::window, &LGE::ScreenWidth, &LGE::ScreenHeight);
-    return LGE::ScreenHeight;
-}

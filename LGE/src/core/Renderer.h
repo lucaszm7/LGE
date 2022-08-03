@@ -57,7 +57,6 @@ public:
     static void UpdateGLFW();
     static void CleanUpImGui();
     static void CleanUpGLFW();
-
-    static int GetScreenWidth();
-    static int GetScreenHeight();
+    static constexpr unsigned int GetScreenWidth() { return SCREEN_WIDTH; }
+    static constexpr unsigned int GetScreenHeight() { return SCREEN_HEIGHT; }
 };
