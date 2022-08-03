@@ -534,6 +534,7 @@ public:
 
     glm::vec2 gravity = { 0.0,-10.0 };
     double timeStep = 1.0 / 60.0;
+    float delta = 1.0;
     bool pause = false;
     float restitution = 0.0f;
 
@@ -619,7 +620,7 @@ public:
 
     void simulate(float fElapsedTime)
     {
-        timeStep = fElapsedTime;
+        timeStep = fElapsedTime * delta;
 
         for (ball& b0 : balls)
         {
@@ -683,6 +684,7 @@ public:
         if (ImGui::Button("Pause"))
             pause = !pause;
         ImGui::DragFloat("Restitution", &restitution, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("TimeStep", &delta, 0.1f, 0.1f, 10.0f);
     }
 };
 
