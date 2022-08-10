@@ -265,9 +265,6 @@ namespace LGE
             Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
             while (!Renderer::WindowShouldClose())
             {
-
-                Renderer::SetWindowTitle(m_MainMenu->c_SceneName.c_str());
-
                 Renderer::Clear();
                 Renderer::CreateImGuiFrame();
 
@@ -286,13 +283,12 @@ namespace LGE
                     DrawerLines->Reset();
                     DrawerRects->Reset();
                     
-                    // m_Shader.reset();
-
                     delete m_CurrentApp;
                     
                     LGE::UseTV = false;
                     m_CurrentApp = m_MainMenu;
                     m_MainMenu->c_SceneName = "Main Menu";
+                    Renderer::SetWindowTitle(m_MainMenu->c_SceneName.c_str());
                     Renderer::ClearColor(0.0f, 0.0f, 0.25f, 1.0f);
                 }
                 
