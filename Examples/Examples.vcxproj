@@ -94,7 +94,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)LGE;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\src;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\src\core;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\src\scenes;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\src\utility;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\src\vendor;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\Dependencies\GLEW\include;C:\Users\lucaszm\Desktop\__Projetos_Proprios\__LGE\LGE\LGE\Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)LGE;$(SolutionDir)LGE\src;$(SolutionDir)LGE\src\core;$(SolutionDir)LGE\src\scenes;$(SolutionDir)LGE\src\utility;$(SolutionDir)LGE\src\vendor;$(SolutionDir)LGE\Dependencies\GLEW\include;$(SolutionDir)LGE\Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
