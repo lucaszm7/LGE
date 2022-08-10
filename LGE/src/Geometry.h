@@ -136,6 +136,7 @@ public:
         m_VAO.emplace_back();
         if (layout)
             m_Layout = layout;
+
         else
         {
             m_Layout = new VertexBufferLayout();
@@ -173,7 +174,23 @@ public:
 
     ~Drawer()
     {
+        dta = nullptr;
+        dta_size = 0;
+        m_VAO.clear();
+        m_VB.clear();
+        m_IB.clear();
+        m_Index.clear();
         delete m_Layout;
+    }
+
+    void Reset()
+    {
+        dta = nullptr;
+        dta_size = 0;
+        m_VAO.clear();
+        m_VB.clear();
+        m_IB.clear();
+        m_Index.clear();
     }
 
     void Draw(void* pdta = nullptr, size_t v_size = 0)

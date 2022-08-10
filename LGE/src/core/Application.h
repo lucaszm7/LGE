@@ -282,13 +282,9 @@ namespace LGE
                     PointsQueue.clear();
                     RectQueue.clear();
 
-                    DrawerPoints.reset();
-                    DrawerLines.reset();
-                    DrawerRects.reset();
-                    
-                    DrawerPoints = std::make_unique<Drawer>(SHAPE::POINT);
-                    DrawerLines = std::make_unique<Drawer>(SHAPE::LINE);
-                    DrawerRects = std::make_unique<Drawer>(SHAPE::RECT);
+                    DrawerPoints->Reset();
+                    DrawerLines->Reset();
+                    DrawerRects->Reset();
                     
                     // m_Shader.reset();
 
@@ -311,7 +307,7 @@ namespace LGE
                     {
                         if (LGE::UseTV) tv.Transform(PixelQueue);
                         DrawerPoints->Draw(&PixelQueue[0], PixelQueue.size());
-                    } 
+                    }
                     #endif
                     //// Draw Primitives
                     if (LinesQueue.size() > 0)
