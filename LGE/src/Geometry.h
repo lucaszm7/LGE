@@ -250,16 +250,15 @@ public:
         }
 
         size_t dta_draw = nBufferMaxSize;
+        m_VAO[0].Bind();
+        m_VB[0].Bind();
+        m_IB[0].Bind();
         for (int i = 0; i <= (dta_size / nBufferMaxSize); ++i)
         {
             if (i == (int)(dta_size / nBufferMaxSize)) dta_draw = (size_t)((unsigned int)dta_size % nBufferMaxSize);
             
-            m_VAO[0].Bind();
-            m_VB[0].Bind();
             void* dta_location = (void*)(((char*)dta) + (nBufferMaxSize * i * m_Layout->GetStride()));
             glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_draw, dta_location);
-
-            m_IB[0].Bind();
             size_t index_data_size; 
             size_t index_data_pointer; 
             if (static_cast<SHAPE>(type) == SHAPE::RECT)
@@ -277,10 +276,10 @@ public:
             
             glDrawElements(static_cast<GLenum>(type), index_data_size, GL_UNSIGNED_INT, nullptr);
 
-            m_VAO[i].Unbind();
-            m_IB[i].Unbind();
-            m_VB[i].Unbind();
         }
+        m_VAO[0].Unbind();
+        m_IB[0].Unbind();
+        m_VB[0].Unbind();
 
     }
 };
