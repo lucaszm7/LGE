@@ -1,5 +1,8 @@
 # Lukeda Graphical Engine (LGE)
 
+<img width="642" alt="image" src="https://user-images.githubusercontent.com/42661760/183973013-015fdf78-94dc-4a1c-9ed9-0cee74c643ad.png">
+<img width="642" alt="image" src="https://user-images.githubusercontent.com/42661760/183938865-90a91731-5d5c-49b5-adf4-66d8cf175cd7.png">
+
 It's a simple graphical library, written in C++ with OpenGL(GLEW) and GLFW
 
 Start as a fork from my other project named "OpenGL", it grow up when I needed for my class 
