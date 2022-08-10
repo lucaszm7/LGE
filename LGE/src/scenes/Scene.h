@@ -43,6 +43,7 @@ namespace LGE
 				{
 					m_CurrentScene = scene.second();
 					c_SceneName = scene.first;
+					Renderer::SetWindowTitle(c_SceneName.c_str());
 				}
 			}
 		}
