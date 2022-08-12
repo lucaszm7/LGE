@@ -11,7 +11,7 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count, GLenum mo
 {
     // Gen a buffer in the graphics card, and return the ID of that buffer
     glGenBuffers(1, &m_RendererID);
-    // std::cout << "Creating Index Buffer - " << m_RendererID << "\n";
+    std::cout << "Creating Index Buffer - " << m_RendererID << "\n";
     // Tell the OpenGL what type is that buffer and selected
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
     // As we know the data we want, we can provide with data right way
@@ -45,6 +45,7 @@ void IndexBuffer::Delete()
 
 void IndexBuffer::Resize(size_t new_size, void* data, GLenum mode)
 {
+    Bind();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, new_size * sizeof(unsigned int), data, mode);
 }
 
