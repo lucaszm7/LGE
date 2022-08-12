@@ -688,12 +688,36 @@ public:
     }
 };
 
+
+class TicTacToe : public LGE::Scene_t
+{
+public:
+    TicTacToe()
+    {
+
+    }
+
+    ~TicTacToe() {}
+
+    void OnUpdate(float fElapsedTime) override
+    {
+        DrawPoint(200, 200, 20, { 1.0, 1.0, 0.0, 1.0 });
+    }
+
+    void OnImGuiRender() override
+    {
+        ImGui::Text("Hello Imgui!");
+    }
+};
+
+
 int main(int argc, char** argv)
 {
     LGE::Application Demo;
     Demo.RegisterScene<SceneStaticQuadTree>("Static Quad Tree");
     Demo.RegisterScene<PixelDrawing>("Pixel Drawing");
     Demo.RegisterScene<MinutesPhysics>("10 Minutes Physics");
+    Demo.RegisterScene<TicTacToe>("TicTacToe");
     Demo.Run ();
 
     return 0;
