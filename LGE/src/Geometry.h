@@ -115,12 +115,13 @@ private:
     std::vector<unsigned int> m_Index;
     VertexBufferLayout *m_Layout;
 
-    static const unsigned int nBufferMaxSize = 500000;
+    static const unsigned int nBufferMaxSize = 50000;
 
 private:
     std::vector<VertexArray> m_VAO;
     std::vector<VertexBuffer> m_VB;
     std::vector<IndexBuffer> m_IB;
+    unsigned int buffer_size_count = 1;
 
 public:
     Drawer(SHAPE t, size_t v_size = nBufferMaxSize, void* pdta = nullptr, VertexBufferLayout *layout = nullptr, float r = 50)
@@ -184,6 +185,7 @@ public:
     {
         dta = nullptr;
         dta_size = 0;
+        buffer_size_count = 0;
         m_VAO.clear();
         m_VB.clear();
         m_IB.clear();
@@ -192,51 +194,60 @@ public:
 
     void Draw(void* pdta = nullptr, size_t v_size = 0)
     {
-        if (pdta != nullptr && v_size != 0)
+        dta = pdta;
+        if (static_cast<SHAPE>(type) == SHAPE::RECT )
         {
-            dta = pdta;
-            while ((float)((m_Index.size() * (2.0f / 3.0f))) / (float)v_size < 1.0)
+            if (v_size >= buffer_size_count * nBufferMaxSize)
             {
-                if (static_cast<SHAPE>(type) == SHAPE::RECT)
+                buffer_size_count = (v_size / nBufferMaxSize) + 1;
+                m_Index.resize(buffer_size_count * nBufferMaxSize * (3.0f / 2.0f));
+                for (int i = 0; i < m_Index.size() * (2.0f / 3.0f); i += 4)
                 {
-                    m_Index.resize((m_Index.size() + nBufferMaxSize) * (3.0f / 2.0f));
-                    for (int i = 0; i < m_Index.size() * (2.0f / 3.0f); i += 4)
-                    {
-                        m_Index[(i + 0) + (i / 2)] = i + 0;
-                        m_Index[(i + 1) + (i / 2)] = i + 1;
-                        m_Index[(i + 2) + (i / 2)] = i + 2;
+                    m_Index[(i + 0) + (i / 2)] = i + 0;
+                    m_Index[(i + 1) + (i / 2)] = i + 1;
+                    m_Index[(i + 2) + (i / 2)] = i + 2;
 
-                        m_Index[(i + 3) + (i / 2)] = i + 0;
-                        m_Index[(i + 4) + (i / 2)] = i + 2;
-                        m_Index[(i + 5) + (i / 2)] = i + 3;
-                    }
-                    if (m_VAO.size() == 0)
-                    {
-                        m_VB.emplace_back(nullptr, sizeof(Vertex) * nBufferMaxSize);
-                        m_IB.emplace_back(nullptr, nBufferMaxSize * (3.0f / 2.0f));
-                        m_VAO.emplace_back();
-                        m_VAO[m_VAO.size() - 1].AddBuffer(m_VB[m_VB.size() - 1], *m_Layout);
-                    }
-
+                    m_Index[(i + 3) + (i / 2)] = i + 0;
+                    m_Index[(i + 4) + (i / 2)] = i + 2;
+                    m_Index[(i + 5) + (i / 2)] = i + 3;
+                }
+                if (m_VAO.size() == 0)
+                {
+                    m_VAO.emplace_back();
+                    m_VB.emplace_back(nullptr, buffer_size_count * m_Layout->GetStride() * nBufferMaxSize, GL_DYNAMIC_DRAW);
+                    m_VAO[0].AddBuffer(m_VB[0], *m_Layout);
+                    m_IB.emplace_back(nullptr, buffer_size_count * nBufferMaxSize * (3.0f / 2.0f));
                 }
                 else
                 {
-                    m_Index.resize(m_Index.size() + nBufferMaxSize);
-                    for (unsigned int i = 0; i < m_Index.size(); ++i)
-                        m_Index[i] = i;
-                    if (m_VAO.size() == 0)
-                    {
-                        m_VAO.emplace_back();
-                        m_VAO[m_VAO.size() - 1].Bind();
-                        m_VB.emplace_back(nullptr, sizeof(Vertex) * nBufferMaxSize);
-                        m_IB.emplace_back(nullptr, nBufferMaxSize);
-                        m_VAO[m_VAO.size() - 1].AddBuffer(m_VB[m_VB.size() - 1], *m_Layout);
-                    }
-
+                    m_VB[0].Resize(buffer_size_count * m_Layout->GetStride() * nBufferMaxSize);
+                    m_IB[0].Resize(buffer_size_count * nBufferMaxSize * (3.0f / 2.0f));
                 }
             }
-            dta_size = v_size;
         }
+        else 
+        {
+            if (v_size >= buffer_size_count * nBufferMaxSize)
+            {
+                buffer_size_count = (v_size / nBufferMaxSize) + 1;
+                m_Index.resize(buffer_size_count * nBufferMaxSize);
+                for (unsigned int i = 0; i < m_Index.size(); ++i)
+                    m_Index[i] = i;
+                if (m_VAO.size() == 0)
+                {
+                    m_VAO.emplace_back();
+                    m_VB.emplace_back(nullptr, buffer_size_count * m_Layout->GetStride() * nBufferMaxSize, GL_DYNAMIC_DRAW);
+                    m_VAO[0].AddBuffer(m_VB[0], *m_Layout);
+                    m_IB.emplace_back(nullptr, buffer_size_count * nBufferMaxSize * (3.0f / 2.0f));
+                }
+                else
+                {
+                    m_VB[0].Resize(buffer_size_count * m_Layout->GetStride() * nBufferMaxSize);
+                    m_IB[0].Resize(buffer_size_count * nBufferMaxSize);
+                }
+            }
+        }
+        dta_size = v_size;
 
         if (!dta)
             return;
@@ -249,34 +260,17 @@ public:
             // TODO - Pass a buffer to the shader with radius info
         }
 
-        size_t dta_draw = nBufferMaxSize;
-        m_VAO[0].Bind();
         m_VB[0].Bind();
+        glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_size, dta);
+            
         m_IB[0].Bind();
-        for (int i = 0; i <= (dta_size / nBufferMaxSize); ++i)
-        {
-            if (i == (int)(dta_size / nBufferMaxSize)) dta_draw = (size_t)((unsigned int)dta_size % nBufferMaxSize);
+        size_t index_size = dta_size;
+        if (static_cast<SHAPE>(type) == SHAPE::RECT) index_size = ((float)index_size * (3.0f / 2.0f));
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * index_size, &m_Index[0]);
             
-            void* dta_location = (void*)(((char*)dta) + (nBufferMaxSize * i * m_Layout->GetStride()));
-            glBufferSubData(GL_ARRAY_BUFFER, 0, m_Layout->GetStride() * dta_draw, dta_location);
-            size_t index_data_size; 
-            size_t index_data_pointer; 
-            if (static_cast<SHAPE>(type) == SHAPE::RECT)
-            {
-                index_data_size = ((float)dta_draw * (3.0f / 2.0f));
-                index_data_pointer = nBufferMaxSize * (3.0f / 2.0f) * i; // wront for the last one
-            }
-            else
-            {
-                index_data_size = dta_draw;
-                index_data_pointer = nBufferMaxSize * i; // wront for the last one
-            }
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * index_data_size, &(m_Index[index_data_pointer]));
+        m_VAO[0].Bind();
+        glDrawElements(static_cast<GLenum>(type), index_size, GL_UNSIGNED_INT, nullptr);
 
-            
-            glDrawElements(static_cast<GLenum>(type), index_data_size, GL_UNSIGNED_INT, nullptr);
-
-        }
         m_VAO[0].Unbind();
         m_IB[0].Unbind();
         m_VB[0].Unbind();
